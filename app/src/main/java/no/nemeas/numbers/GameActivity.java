@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TableLayout;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -39,7 +40,7 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        this.numbers = this.getNumbers();
+
 
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -49,13 +50,23 @@ public class GameActivity extends AppCompatActivity {
             }
         }, 60 * 1000);
 
-        initializeNumbers(this.numbers);
+        setupStage();
     }
 
     private int[] getNumbers() {
         // TODO - implement
         // needs to take into account the lvl of the player.
-        int[] list = new int[] { 1, 14, 32, 21, 89 };
+        Random r = new Random();
+
+        int numberOfNumbers = 5;
+
+        int[] list = new int[numberOfNumbers];
+        for(int i = 0 ; i < numberOfNumbers; i++) {
+            list[i] = r.nextInt(10);
+        }
+
+        list = distinct(list);
+
         return list;
     }
 
@@ -83,7 +94,9 @@ public class GameActivity extends AppCompatActivity {
         numbers = temp;
     }
 
-    private void initializeNumbers(int[] numbers) {
+    private void setupStage() {
+
+        numbers = this.getNumbers();
 
         ArrayList<Button> buttons = new ArrayList<>();
 
@@ -94,7 +107,7 @@ public class GameActivity extends AppCompatActivity {
             b.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
 
-                    if (state == State.timeout || state == State.stageFailed) return;
+                    if (state == State.timeout) return;
 
                     // Perform action on click
                     Button b = (Button) findViewById(number);
@@ -113,12 +126,12 @@ public class GameActivity extends AppCompatActivity {
         }
 
         TableLayout tableLayout = (TableLayout) findViewById(R.id.board);
+        tableLayout.removeAllViews();
         TableLayout.LayoutParams lp = new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT);
 
         for (Button button : buttons) {
             tableLayout.addView(button);
         }
-
     }
 
     private boolean isStageComplete() {
@@ -130,6 +143,7 @@ public class GameActivity extends AppCompatActivity {
         Log.d("a", "complete");
         completedStages ++;
         // should show a quick thumbs up, then on to the next stage
+        setupStage();
     }
 
     private void setGameStateTimeOut() {
@@ -143,6 +157,29 @@ public class GameActivity extends AppCompatActivity {
         Log.d("a", "fail");
         failedStages ++;
         // show a quick thumbs down, then go on to the next stage
+        setupStage();
         // TODO - implement timing of each stage/lvl
+    }
+
+    private static int[] distinct(int[] list) {
+        int numberOfDistinctNumbers = 0;
+        ArrayList<String> checked = new ArrayList<String>();
+
+        for (int i : list) {
+            if (checked.contains(i + "")) continue;
+            checked.add(i + "");
+            numberOfDistinctNumbers ++;
+        }
+
+        int[] distinct = new int[numberOfDistinctNumbers];
+
+        int a = 0;
+
+        for (String i : checked) {
+            distinct[a] = Integer.parseInt(i);
+            a ++;
+        }
+
+        return distinct;
     }
 }
