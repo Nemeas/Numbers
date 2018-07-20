@@ -3,6 +3,7 @@ package no.nemeas.numbers;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TableLayout;
@@ -126,17 +127,20 @@ public class GameActivity extends AppCompatActivity {
 
     private void setGameStateStageComplete() {
         state = State.stageComplete;
+        Log.d("a", "complete");
         completedStages ++;
         // should show a quick thumbs up, then on to the next stage
     }
 
     private void setGameStateTimeOut() {
         state = State.timeout;
+        Log.d("a", "timeout");
         // show stats
     }
 
     private void setGameStateStageFailed() {
         state = State.stageFailed;
+        Log.d("a", "fail");
         failedStages ++;
         // show a quick thumbs down, then go on to the next stage
         // TODO - implement timing of each stage/lvl
