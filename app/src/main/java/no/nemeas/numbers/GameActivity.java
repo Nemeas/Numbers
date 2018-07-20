@@ -8,11 +8,13 @@ import android.widget.Button;
 import android.widget.TableLayout;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 enum State {
     initial,
-    win,
-    gameOver,
+    stageComplete,
+    stageFailed,
     timeout
 }
 
@@ -27,6 +29,9 @@ public class GameActivity extends AppCompatActivity {
 
     private static int[] numbers;
     private static State state = State.initial;
+    private static int completedStages = 0;
+    private static int failedStages = 0;
+    private static Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +39,14 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         this.numbers = this.getNumbers();
+
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                setGameStateTimeOut();
+            }
+        }, 60 * 1000);
 
         initializeNumbers(this.numbers);
     }
@@ -80,7 +93,7 @@ public class GameActivity extends AppCompatActivity {
             b.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
 
-                    if (state == State.gameOver) return;
+                    if (state == State.timeout || state == State.stageFailed) return;
 
                     // Perform action on click
                     Button b = (Button) findViewById(number);
@@ -89,10 +102,10 @@ public class GameActivity extends AppCompatActivity {
                         updateNumbers(number);
                     } else {
                         b.setBackgroundColor(Color.RED);
-                        setGameStateGameOver();
+                        setGameStateStageFailed();
                     }
 
-                    if (isGameWon()) setGameStateGameWon();
+                    if (isStageComplete()) setGameStateStageComplete();
                 }
             });
             buttons.add(b);
@@ -107,21 +120,25 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-    private boolean isGameWon() {
+    private boolean isStageComplete() {
         return numbers.length == 0;
     }
 
-    private void setGameStateGameWon() {
-        state = State.win;
-        // display some kind of good-job, message, with some data of how this stage went?
-        // lvl up
-        // dismissing the message should trigger next stage?
+    private void setGameStateStageComplete() {
+        state = State.stageComplete;
+        completedStages ++;
+        // should show a quick thumbs up, then on to the next stage
     }
 
-    private void setGameStateGameOver() {
-        state = State.gameOver;
-        // spawn some "good job, try again for a even better time"-activity
+    private void setGameStateTimeOut() {
+        state = State.timeout;
+        // show stats
+    }
+
+    private void setGameStateStageFailed() {
+        state = State.stageFailed;
+        failedStages ++;
+        // show a quick thumbs down, then go on to the next stage
         // TODO - implement timing of each stage/lvl
-        // TODO - for future implementation; this might be a good spot to place some kind of ads.. like, every 3rd time u fail, u get an ad?
     }
 }
