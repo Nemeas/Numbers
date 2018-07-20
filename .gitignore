@@ -60,10 +60,14 @@ fabric.properties
 .idea/httpRequests
 
 -*.iml
--.gradle
+*.gradle
 -/local.properties
 -/.idea/workspace.xml
 -/.idea/libraries
 -.DS_Store
 -/build
 -/captures
+
+.idea/caches
+local.properties
+projectFilesBackup
