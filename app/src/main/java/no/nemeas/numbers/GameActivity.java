@@ -81,6 +81,8 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private static void updateNumbers(int value) {
+        if(!contains(numbers, value)) return;
+
         int[] temp = new int[numbers.length - 1];
 
         int a = 0;
@@ -181,5 +183,12 @@ public class GameActivity extends AppCompatActivity {
         }
 
         return distinct;
+    }
+
+    private static boolean contains(int[] list, int value) {
+        for (int i : list) {
+            if (i == value) return true;
+        }
+        return false;
     }
 }
