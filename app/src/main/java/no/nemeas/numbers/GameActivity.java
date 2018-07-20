@@ -1,17 +1,23 @@
 package no.nemeas.numbers;
 
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static java.lang.System.out;
 
 enum State {
     initial,
@@ -54,8 +60,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private int[] getNumbers() {
-        // TODO - implement
-        // needs to take into account the lvl of the player.
+        // TODO - needs to take into account the lvl of the player.
         Random r = new Random();
 
         int numberOfNumbers = 5;
@@ -106,6 +111,7 @@ public class GameActivity extends AppCompatActivity {
             Button b = new Button(this);
             b.setText(number + "");
             b.setId(number);
+
             b.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
 
@@ -127,12 +133,45 @@ public class GameActivity extends AppCompatActivity {
             buttons.add(b);
         }
 
-        TableLayout tableLayout = (TableLayout) findViewById(R.id.board);
-        tableLayout.removeAllViews();
-        TableLayout.LayoutParams lp = new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT);
+        positionButtons(buttons);
+
+        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.board);
+
+        relativeLayout.removeAllViews();
 
         for (Button button : buttons) {
-            tableLayout.addView(button);
+            relativeLayout.addView(button);
+        }
+    }
+
+    private void positionButtons(ArrayList<Button> buttons) {
+        // TODO - something fishy about this positioning, also:
+        // TODO - make the buttons not overlap..
+
+        Display display = getWindowManager().getDefaultDisplay();
+        int width = display.getWidth();
+        int height = display.getHeight();
+
+        int buttonSize = width / 10;
+
+        int centeringMarginWidth = width / 4;
+        int centeringMarginHeight = height / 4;
+
+        for (Button button : buttons) {
+            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(buttonSize, buttonSize);
+
+            layoutParams.topMargin = nextInt(centeringMarginHeight, height - centeringMarginHeight - buttonSize);
+            layoutParams.leftMargin = nextInt(centeringMarginWidth, width - centeringMarginWidth - buttonSize);
+            button.setLayoutParams(layoutParams);
+        }
+    }
+
+    private static int nextInt(int min, int max) {
+        Random r = new Random();
+
+        while (true) {
+            int a = r.nextInt(max);
+            if (a > min) return a;
         }
     }
 
