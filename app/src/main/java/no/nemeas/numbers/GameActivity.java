@@ -165,12 +165,12 @@ public class GameActivity extends AppCompatActivity {
         int width = display.getWidth();
         int height = display.getHeight();
 
-        int buttonSize = width / 10;
+        int buttonSize = width / 7;
 
         int centeringMarginWidth = width / 4;
         int centeringMarginHeight = height / 4;
 
-        int margin = 10;
+        int margin = 20;
 
         Position[] positions = PositionHelper.getPositions(centeringMarginWidth, width - centeringMarginWidth, centeringMarginHeight, height - centeringMarginHeight, buttons.size(), buttonSize, margin);
 
