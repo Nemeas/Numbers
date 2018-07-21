@@ -170,21 +170,16 @@ public class GameActivity extends AppCompatActivity {
         int centeringMarginWidth = width / 4;
         int centeringMarginHeight = height / 4;
 
-        for (Button button : buttons) {
+        int margin = 10;
+
+        Position[] positions = PositionHelper.getPositions(centeringMarginWidth, width - centeringMarginWidth, centeringMarginHeight, height - centeringMarginHeight, buttons.size(), buttonSize, margin);
+
+        for (int i = 0 ; i < positions.length ; i++) {
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(buttonSize, buttonSize);
 
-            layoutParams.topMargin = nextInt(centeringMarginHeight, height - centeringMarginHeight - buttonSize);
-            layoutParams.leftMargin = nextInt(centeringMarginWidth, width - centeringMarginWidth - buttonSize);
-            button.setLayoutParams(layoutParams);
-        }
-    }
-
-    private static int nextInt(int min, int max) {
-        Random r = new Random();
-
-        while (true) {
-            int a = r.nextInt(max);
-            if (a > min) return a;
+            layoutParams.topMargin = positions[i].y;
+            layoutParams.leftMargin = positions[i].x;
+            buttons.get(i).setLayoutParams(layoutParams);
         }
     }
 
