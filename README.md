@@ -1,3 +1,3 @@
 # Numbers
 
-A android game inspired by one of the minigames inside the awsome app Peak.
+A android game inspired by the game LowPop in the app Peek.
