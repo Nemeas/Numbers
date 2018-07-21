@@ -3,6 +3,7 @@ package no.nemeas.numbers;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
@@ -40,13 +41,20 @@ public class GameActivity extends AppCompatActivity {
     private static int completedStages = 0;
     private static int failedStages = 0;
     private static Timer timer;
+    private final static int[] colorPalette = new int [] {
+        Color.rgb(186, 59, 97),
+        Color.rgb(206, 82, 57),
+        Color.rgb(219, 202, 72),
+        Color.rgb(69, 183, 211),
+        Color.rgb(123, 224, 131),
+        Color.rgb(206, 200, 76),
+        Color.rgb(52, 209, 237)
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
-
 
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -109,6 +117,7 @@ public class GameActivity extends AppCompatActivity {
 
         for (final int number : numbers) {
             Button b = new Button(this);
+            b.setBackgroundColor(getRandomBackgroundColor());
             b.setText(number + "");
             b.setId(number);
 
@@ -142,6 +151,10 @@ public class GameActivity extends AppCompatActivity {
         for (Button button : buttons) {
             relativeLayout.addView(button);
         }
+    }
+
+    private int getRandomBackgroundColor() {
+        return colorPalette[new Random().nextInt(colorPalette.length - 1)];
     }
 
     private void positionButtons(ArrayList<Button> buttons) {
@@ -189,7 +202,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void setGameStateTimeOut() {
         state = State.timeout;
-        Log.d("a", "timeout");
+        Log.d("a", "timeout \nwins:" + completedStages + "\nlosses: " + failedStages);
         // show stats
     }
 
