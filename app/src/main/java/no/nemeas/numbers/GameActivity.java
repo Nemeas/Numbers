@@ -1,24 +1,26 @@
 package no.nemeas.numbers;
 
+import android.animation.ValueAnimator;
+import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateInterpolator;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TableLayout;
 
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static java.lang.System.out;
 
 enum State {
     initial,
@@ -33,6 +35,14 @@ enum State {
 // Each successful stage results in a quick "thumbs up", followed by a new stage.
 // If u press the wrong number, a quick feedback is given, and a new stage begins.
 // until the timer runs out.
+// when u finish a lvl we want the player to continue playing, so it should be easy to go to the next lvl.
+// after finishing a lvl, this is a natural spot for ads..
+
+// needs something to route u into playing the game; like: start game at lvl 12.
+
+// needs to increase difficulty based on lvl.
+
+// needs animations
 
 public class GameActivity extends AppCompatActivity {
 
@@ -146,7 +156,7 @@ public class GameActivity extends AppCompatActivity {
 
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.board);
 
-        relativeLayout.removeAllViews();
+        relativeLayout.removeAllViewsInLayout();
 
         for (Button button : buttons) {
             relativeLayout.addView(button);
@@ -158,8 +168,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void positionButtons(ArrayList<Button> buttons) {
-        // TODO - something fishy about this positioning, also:
-        // TODO - make the buttons not overlap..
+        // TODO - something fishy about the display width and height, if possible, this should be changed to use the actual relative layout in the view.
 
         Display display = getWindowManager().getDefaultDisplay();
         int width = display.getWidth();
@@ -191,8 +200,34 @@ public class GameActivity extends AppCompatActivity {
         state = State.stageComplete;
         Log.d("a", "complete");
         completedStages ++;
-        // should show a quick thumbs up, then on to the next stage
+
+        showThumbsUp();
+
         setupStage();
+    }
+
+    private void showThumbsUp() {
+        final ImageView thumbsUp = (ImageView) findViewById(R.id.thumbsUp);
+        animateImage(thumbsUp);
+    }
+
+    private void showThumbsDown() {
+        final ImageView thumbsDown = (ImageView) findViewById(R.id.thumbsDown);
+        animateImage(thumbsDown);
+    }
+
+    private void animateImage(final ImageView image) {
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(1f, 0f);
+        valueAnimator.setInterpolator(new AccelerateInterpolator()); // increase the speed first and then decrease
+        valueAnimator.setDuration(500);
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float progress = (float) animation.getAnimatedValue();
+                image.setAlpha(progress);
+            }
+        });
+        valueAnimator.start();
     }
 
     private void setGameStateTimeOut() {
@@ -205,7 +240,7 @@ public class GameActivity extends AppCompatActivity {
         state = State.stageFailed;
         Log.d("a", "fail");
         failedStages ++;
-        // show a quick thumbs down, then go on to the next stage
+        showThumbsDown();
         setupStage();
         // TODO - implement timing of each stage/lvl
     }
