@@ -12,28 +12,26 @@
     tools:context="no.nemeas.numbers.GameActivity">
 
     <RelativeLayout
+        android:id="@+id/board"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/board">
-
-
+        android:layout_height="match_parent">
 
     </RelativeLayout>
 
+    <ImageView
+        android:id="@+id/thumbsUp"
+        android:src="@drawable/success"
+        android:alpha="0"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true" />
 
+    <ImageView
+        android:id="@+id/thumbsDown"
+        android:src="@drawable/failure"
+        android:alpha="0"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true" />
 
-    <!--TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:orientation="vertical"
-        android:id="@+id/board">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"></TableRow >
-
-    </TableLayout-->
 </RelativeLayout>
