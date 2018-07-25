@@ -1,40 +1,36 @@
 package no.nemeas.numbers;
 
 import android.animation.ValueAnimator;
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.AnticipateInterpolator;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
+
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
 
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-enum State {
-    initial,
-    stageComplete,
-    stageFailed,
-    timeout
-}
-
 // the game should be divided into stages and lvls, where one lvl contains an infinity number of stages.
-// when starting a lvl the timer begins, and the timer is always, lets say 1 minute.
-// U get points based on how many stages u can do in a minute, and how many mistakes u make.
-// Each successful stage results in a quick "thumbs up", followed by a new stage.
-// If u press the wrong number, a quick feedback is given, and a new stage begins.
-// until the timer runs out.
+// when starting a lvl the timer begins, and the timer is always, lets say 1 minute. - done
+// U get points based on how many stages u can do in a minute, and how many mistakes u make. (1 win = 10 points, 1 loss = -4 points?) - needs tweaking no matter what..
+
+// Each successful stage results in a quick "thumbs up", followed by a new stage. - done
+// If u press the wrong number, a quick feedback is given, and a new stage begins. - done
+// until the timer runs out. - done
 // when u finish a lvl we want the player to continue playing, so it should be easy to go to the next lvl.
 // after finishing a lvl, this is a natural spot for ads..
 
@@ -42,29 +38,32 @@ enum State {
 
 // needs to increase difficulty based on lvl.
 
-// needs animations
-
 public class GameActivity extends AppCompatActivity {
 
+    private InterstitialAd mInterstitialAd;
+
     private static int[] numbers;
-    private static State state = State.initial;
+    private static StateEnum state = StateEnum.initial;
     private static int completedStages = 0;
     private static int failedStages = 0;
     private static Timer timer;
-    private final static int[] colorPalette = new int [] {
-        Color.rgb(186, 59, 97),
-        Color.rgb(206, 82, 57),
-        Color.rgb(219, 202, 72),
-        Color.rgb(69, 183, 211),
-        Color.rgb(123, 224, 131),
-        Color.rgb(206, 200, 76),
-        Color.rgb(52, 209, 237)
-    };
+    private ImageButton mNextLevelButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+
+        mNextLevelButton = ((ImageButton) findViewById(R.id.nextLvl));
+        mNextLevelButton.setVisibility(View.INVISIBLE);
+        mNextLevelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showAd();
+            }
+        });
+
+        MobileAds.initialize(this, "ca-app-pub-8731827103414918~6135545007");
 
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -72,26 +71,49 @@ public class GameActivity extends AppCompatActivity {
             public void run() {
                 setGameStateTimeOut();
             }
-        }, 60 * 1000);
+        }, Settings.lvlDuration * 1000);
 
         setupStage();
+
+        // Create the InterstitialAd and set the adUnitId (defined in values/strings.xml).
+        mInterstitialAd = newInterstitialAd();
+        loadInterstitial();
     }
 
-    private int[] getNumbers() {
-        // TODO - needs to take into account the lvl of the player.
-        Random r = new Random();
+    private InterstitialAd newInterstitialAd() {
+        InterstitialAd interstitialAd = new InterstitialAd(this);
+        interstitialAd.setAdUnitId(getString(R.string.interstitial_ad_unit_id));
+        interstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                Log.d("ad", "Loaded");
+                //mNextLevelButton.setEnabled(true);
+            }
 
-        int numberOfNumbers = 5;
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                Log.d("ad", "failed to load");
+                //mNextLevelButton.setEnabled(true);
+            }
 
-        int[] list = new int[numberOfNumbers];
-        for(int i = 0 ; i < numberOfNumbers; i++) {
-            list[i] = r.nextInt(10);
-        }
-
-        list = distinct(list);
-
-        return list;
+            @Override
+            public void onAdClosed() {
+                // Proceed to the next level.
+                Log.d("ad", "ad closed");
+                nextLvl();
+            }
+        });
+        return interstitialAd;
     }
+
+    private void loadInterstitial() {
+        // Disable the next level button and load the ad.
+        // mNextLevelButton.setEnabled(false);
+        AdRequest adRequest = new AdRequest.Builder().setRequestAgent("android_studio:ad_template").build();
+        mInterstitialAd.loadAd(adRequest);
+    }
+
+
 
     private static boolean isCorrect(int value) {
         if (numbers.length == 1) return true;
@@ -104,7 +126,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private static void updateNumbers(int value) {
-        if(!contains(numbers, value)) return;
+        if(!Utils.contains(numbers, value)) return;
 
         int[] temp = new int[numbers.length - 1];
 
@@ -119,6 +141,22 @@ public class GameActivity extends AppCompatActivity {
         numbers = temp;
     }
 
+    private int[] getNumbers() {
+        // TODO - needs to take into account the lvl of the player.
+        Random r = new Random();
+
+        int numberOfNumbers = 5;
+
+        int[] list = new int[numberOfNumbers];
+        for(int i = 0 ; i < numberOfNumbers; i++) {
+            list[i] = r.nextInt(10);
+        }
+
+        list = Utils.distinct(list);
+
+        return list;
+    }
+
     private void setupStage() {
 
         numbers = this.getNumbers();
@@ -127,14 +165,14 @@ public class GameActivity extends AppCompatActivity {
 
         for (final int number : numbers) {
             Button b = new Button(this);
-            b.setBackgroundColor(getRandomBackgroundColor());
+            b.setBackgroundColor(Utils.getRandomBackgroundColor());
             b.setText(number + "");
             b.setId(number);
 
             b.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
 
-                    if (state == State.timeout) return;
+                    if (state == StateEnum.timeout) return;
 
                     // Perform action on click
                     Button b = (Button) findViewById(number);
@@ -161,10 +199,6 @@ public class GameActivity extends AppCompatActivity {
         for (Button button : buttons) {
             relativeLayout.addView(button);
         }
-    }
-
-    private int getRandomBackgroundColor() {
-        return colorPalette[new Random().nextInt(colorPalette.length - 1)];
     }
 
     private void positionButtons(ArrayList<Button> buttons) {
@@ -197,7 +231,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void setGameStateStageComplete() {
-        state = State.stageComplete;
+        state = StateEnum.stageComplete;
         Log.d("a", "complete");
         completedStages ++;
 
@@ -231,13 +265,33 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void setGameStateTimeOut() {
-        state = State.timeout;
+        state = StateEnum.timeout;
         Log.d("a", "timeout \nwins:" + completedStages + "\nlosses: " + failedStages);
+        showNextLvlButton();
+
         // show stats
     }
 
+    private void showNextLvlButton() {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mNextLevelButton.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    private void hideNextLvlButton() {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mNextLevelButton.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
     private void setGameStateStageFailed() {
-        state = State.stageFailed;
+        state = StateEnum.stageFailed;
         Log.d("a", "fail");
         failedStages ++;
         showThumbsDown();
@@ -245,32 +299,25 @@ public class GameActivity extends AppCompatActivity {
         // TODO - implement timing of each stage/lvl
     }
 
-    private static int[] distinct(int[] list) {
-        int numberOfDistinctNumbers = 0;
-        ArrayList<String> checked = new ArrayList<String>();
+    public void nextLvl() {
+        // prepare for the next lvl
 
-        for (int i : list) {
-            if (checked.contains(i + "")) continue;
-            checked.add(i + "");
-            numberOfDistinctNumbers ++;
-        }
+        hideNextLvlButton();
 
-        int[] distinct = new int[numberOfDistinctNumbers];
+        mInterstitialAd = newInterstitialAd();
+        loadInterstitial();
 
-        int a = 0;
-
-        for (String i : checked) {
-            distinct[a] = Integer.parseInt(i);
-            a ++;
-        }
-
-        return distinct;
+        // to other stuff as well
+        // TODO - initialize next lvl
     }
 
-    private static boolean contains(int[] list, int value) {
-        for (int i : list) {
-            if (i == value) return true;
+    private void showAd() {
+        // Show the ad if it's ready. Otherwise toast and reload the ad.
+        if (mInterstitialAd != null && mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            Toast.makeText(this, "Ad did not load", Toast.LENGTH_SHORT).show();
+            nextLvl();
         }
-        return false;
     }
 }
