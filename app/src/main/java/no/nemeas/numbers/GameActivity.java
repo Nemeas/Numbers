@@ -2,6 +2,7 @@ package no.nemeas.numbers;
 
 import android.animation.ValueAnimator;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,7 +21,6 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
 
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -40,31 +40,33 @@ import java.util.TimerTask;
 
 public class GameActivity extends AppCompatActivity {
 
-    private InterstitialAd mInterstitialAd;
-
-    private static int[] numbers;
-    private static StateEnum state = StateEnum.initial;
-    private static int completedStages = 0;
-    private static int failedStages = 0;
+    private Ad ad;
     private static Timer timer;
     private ImageButton mNextLevelButton;
+
+    private GameState state = new GameState();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        ad = new Ad(this);
+
         mNextLevelButton = ((ImageButton) findViewById(R.id.nextLvl));
         mNextLevelButton.setVisibility(View.INVISIBLE);
         mNextLevelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showAd();
+                ad.showAd();
             }
         });
 
-        MobileAds.initialize(this, "ca-app-pub-8731827103414918~6135545007");
+        setupStage();
+        startTimer();
+    }
 
+    private void startTimer() {
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -72,98 +74,15 @@ public class GameActivity extends AppCompatActivity {
                 setGameStateTimeOut();
             }
         }, Settings.lvlDuration * 1000);
-
-        setupStage();
-
-        // Create the InterstitialAd and set the adUnitId (defined in values/strings.xml).
-        mInterstitialAd = newInterstitialAd();
-        loadInterstitial();
-    }
-
-    private InterstitialAd newInterstitialAd() {
-        InterstitialAd interstitialAd = new InterstitialAd(this);
-        interstitialAd.setAdUnitId(getString(R.string.interstitial_ad_unit_id));
-        interstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                Log.d("ad", "Loaded");
-                //mNextLevelButton.setEnabled(true);
-            }
-
-            @Override
-            public void onAdFailedToLoad(int errorCode) {
-                Log.d("ad", "failed to load");
-                //mNextLevelButton.setEnabled(true);
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Proceed to the next level.
-                Log.d("ad", "ad closed");
-                nextLvl();
-            }
-        });
-        return interstitialAd;
-    }
-
-    private void loadInterstitial() {
-        // Disable the next level button and load the ad.
-        // mNextLevelButton.setEnabled(false);
-        AdRequest adRequest = new AdRequest.Builder().setRequestAgent("android_studio:ad_template").build();
-        mInterstitialAd.loadAd(adRequest);
-    }
-
-
-
-    private static boolean isCorrect(int value) {
-        if (numbers.length == 1) return true;
-
-        for (int number : numbers) {
-            if (number < value) return false;
-        }
-
-        return true;
-    }
-
-    private static void updateNumbers(int value) {
-        if(!Utils.contains(numbers, value)) return;
-
-        int[] temp = new int[numbers.length - 1];
-
-        int a = 0;
-        for (int i = 0 ; i < numbers.length ; i++) {
-            if (numbers[i] != value) {
-                temp[a] = numbers[i];
-                a++;
-            }
-        }
-
-        numbers = temp;
-    }
-
-    private int[] getNumbers() {
-        // TODO - needs to take into account the lvl of the player.
-        Random r = new Random();
-
-        int numberOfNumbers = 5;
-
-        int[] list = new int[numberOfNumbers];
-        for(int i = 0 ; i < numberOfNumbers; i++) {
-            list[i] = r.nextInt(10);
-        }
-
-        list = Utils.distinct(list);
-
-        return list;
     }
 
     private void setupStage() {
 
-        numbers = this.getNumbers();
+        state.newStage();
 
         ArrayList<Button> buttons = new ArrayList<>();
 
-        for (final int number : numbers) {
+        for (final int number : state.getStageNumbers()) {
             Button b = new Button(this);
             b.setBackgroundColor(Utils.getRandomBackgroundColor());
             b.setText(number + "");
@@ -172,19 +91,19 @@ public class GameActivity extends AppCompatActivity {
             b.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
 
-                    if (state == StateEnum.timeout) return;
+                    if (state.state == StateEnum.timeout) return;
 
                     // Perform action on click
                     Button b = (Button) findViewById(number);
-                    if (isCorrect(number)) {
+                    if (state.isCorrect(number)) {
                         b.setBackgroundColor(Color.GREEN);
-                        updateNumbers(number);
+                        state.removeNumber(number);
                     } else {
                         b.setBackgroundColor(Color.RED);
                         setGameStateStageFailed();
                     }
 
-                    if (isStageComplete()) setGameStateStageComplete();
+                    if (state.isStageComplete()) setGameStateStageComplete();
                 }
             });
             buttons.add(b);
@@ -205,8 +124,11 @@ public class GameActivity extends AppCompatActivity {
         // TODO - something fishy about the display width and height, if possible, this should be changed to use the actual relative layout in the view.
 
         Display display = getWindowManager().getDefaultDisplay();
-        int width = display.getWidth();
-        int height = display.getHeight();
+        Point point = new Point();
+
+        display.getSize(point);
+        int width = point.x;
+        int height = point.y;
 
         int buttonSize = width / 7;
 
@@ -215,7 +137,14 @@ public class GameActivity extends AppCompatActivity {
 
         int margin = 20;
 
-        Position[] positions = PositionHelper.getPositions(centeringMarginWidth, width - centeringMarginWidth, centeringMarginHeight, height - centeringMarginHeight, buttons.size(), buttonSize, margin);
+        Position[] positions = PositionHelper.getPositions(
+                centeringMarginWidth,
+                width - centeringMarginWidth,
+                centeringMarginHeight,
+                height - centeringMarginHeight,
+                buttons.size(),
+                buttonSize,
+                margin);
 
         for (int i = 0 ; i < positions.length ; i++) {
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(buttonSize, buttonSize);
@@ -226,14 +155,8 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    private boolean isStageComplete() {
-        return numbers.length == 0;
-    }
-
     private void setGameStateStageComplete() {
-        state = StateEnum.stageComplete;
-        Log.d("a", "complete");
-        completedStages ++;
+        state.completeStage();
 
         showThumbsUp();
 
@@ -265,8 +188,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void setGameStateTimeOut() {
-        state = StateEnum.timeout;
-        Log.d("a", "timeout \nwins:" + completedStages + "\nlosses: " + failedStages);
+        state.timeOut();
         showNextLvlButton();
 
         // show stats
@@ -291,9 +213,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void setGameStateStageFailed() {
-        state = StateEnum.stageFailed;
-        Log.d("a", "fail");
-        failedStages ++;
+        state.failStage();
         showThumbsDown();
         setupStage();
         // TODO - implement timing of each stage/lvl
@@ -301,23 +221,16 @@ public class GameActivity extends AppCompatActivity {
 
     public void nextLvl() {
         // prepare for the next lvl
-
         hideNextLvlButton();
 
-        mInterstitialAd = newInterstitialAd();
-        loadInterstitial();
+        ad.doStuff();
 
         // to other stuff as well
-        // TODO - initialize next lvl
-    }
+        state.nextLvl();
+        // TODO - init new view
 
-    private void showAd() {
-        // Show the ad if it's ready. Otherwise toast and reload the ad.
-        if (mInterstitialAd != null && mInterstitialAd.isLoaded()) {
-            mInterstitialAd.show();
-        } else {
-            Toast.makeText(this, "Ad did not load", Toast.LENGTH_SHORT).show();
-            nextLvl();
-        }
+        setupStage();
+
+        startTimer();
     }
 }
