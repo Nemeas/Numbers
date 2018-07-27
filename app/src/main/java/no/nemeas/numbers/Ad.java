@@ -1,9 +1,6 @@
 package no.nemeas.numbers;
 
-import android.content.Context;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
@@ -21,10 +18,10 @@ public class Ad {
 
         MobileAds.initialize(context, "ca-app-pub-8731827103414918~6135545007");
 
-        doStuff();
+        loadNewAd();
     }
 
-    public void doStuff() {
+    public void loadNewAd() {
         // Create the InterstitialAd and set the adUnitId (defined in values/strings.xml).
         mInterstitialAd = newInterstitialAd();
         loadInterstitial();

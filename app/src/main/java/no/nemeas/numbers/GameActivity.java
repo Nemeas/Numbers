@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -13,26 +12,20 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
-
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
 
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-// the game should be divided into stages and lvls, where one lvl contains an infinity number of stages.
+// the game should be divided into stages and lvls, where one lvl contains an infinity number of stages. - done
 // when starting a lvl the timer begins, and the timer is always, lets say 1 minute. - done
 // U get points based on how many stages u can do in a minute, and how many mistakes u make. (1 win = 10 points, 1 loss = -4 points?) - needs tweaking no matter what..
 
 // Each successful stage results in a quick "thumbs up", followed by a new stage. - done
 // If u press the wrong number, a quick feedback is given, and a new stage begins. - done
 // until the timer runs out. - done
-// when u finish a lvl we want the player to continue playing, so it should be easy to go to the next lvl.
-// after finishing a lvl, this is a natural spot for ads..
+// when u finish a lvl we want the player to continue playing, so it should be easy to go to the next lvl. - done
+// after finishing a lvl, this is a natural spot for ads.. - done
 
 // needs something to route u into playing the game; like: start game at lvl 12.
 
@@ -223,7 +216,7 @@ public class GameActivity extends AppCompatActivity {
         // prepare for the next lvl
         hideNextLvlButton();
 
-        ad.doStuff();
+        ad.loadNewAd();
 
         // to other stuff as well
         state.nextLvl();
