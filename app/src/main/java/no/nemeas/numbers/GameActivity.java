@@ -35,8 +35,6 @@ public class GameActivity extends AppCompatActivity {
 
     private Ad ad;
     private static Timer timer;
-    private ImageButton mNextLevelButton;
-
     private GameState state = new GameState();
 
     @Override
@@ -44,16 +42,8 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        ad = new Ad(this);
 
-        mNextLevelButton = ((ImageButton) findViewById(R.id.nextLvl));
-        mNextLevelButton.setVisibility(View.INVISIBLE);
-        mNextLevelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ad.showAd();
-            }
-        });
+        ad = new Ad(this);
 
         setupStage();
         startTimer();
@@ -182,27 +172,47 @@ public class GameActivity extends AppCompatActivity {
 
     private void setGameStateTimeOut() {
         state.timeOut();
-        showNextLvlButton();
+        showNextLvlDialog();
 
         // show stats
     }
 
-    private void showNextLvlButton() {
+    private void showNextLvlDialog() {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mNextLevelButton.setVisibility(View.VISIBLE);
+                // 1. Instantiate an AlertDialog.Builder with its constructor
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                // 2. Chain together various setter methods to set the dialog characteristics
+                builder.setMessage("wins: " + state.completedStages + "\nlosses: " + state.failedStages).setTitle("GJ");
+
+                builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Log.d("Dialog", "Continue");
+                        // User clicked OK button
+                        ad.showAd();
+                    }
+                });
+                builder.setNegativeButton("Back", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Log.d("Dialog", "Back");
+                        // do something else, go back to splash?
+                        // User cancelled the dialog
+                    }
+                });
+
+                // 3. Get the AlertDialog from create()
+                AlertDialog dialog = builder.create();
+
+                dialog.show();
             }
         });
     }
 
-    private void hideNextLvlButton() {
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mNextLevelButton.setVisibility(View.INVISIBLE);
             }
-        });
+    private Context getActivity() {
+        return this;
     }
 
     private void setGameStateStageFailed() {
@@ -214,8 +224,6 @@ public class GameActivity extends AppCompatActivity {
 
     public void nextLvl() {
         // prepare for the next lvl
-        hideNextLvlButton();
-
         ad.loadNewAd();
 
         // to other stuff as well
