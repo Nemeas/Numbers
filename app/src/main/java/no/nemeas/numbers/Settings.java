@@ -3,7 +3,7 @@ package no.nemeas.numbers;
 import android.graphics.Color;
 
 public class Settings {
-    public static final int lvlDuration = 10;
+    public static final int DURATION_OF_LVL_IN_SECS = 60 * 1000;
     public static final int[] colorPalette = new int [] {
             Color.rgb(186, 59, 97),
             Color.rgb(206, 82, 57),
