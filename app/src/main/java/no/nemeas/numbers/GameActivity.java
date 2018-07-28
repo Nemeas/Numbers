@@ -1,21 +1,24 @@
 package no.nemeas.numbers;
 
 import android.animation.ValueAnimator;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 // the game should be divided into stages and lvls, where one lvl contains an infinity number of stages. - done
 // when starting a lvl the timer begins, and the timer is always, lets say 1 minute. - done
@@ -34,29 +37,21 @@ import java.util.TimerTask;
 public class GameActivity extends AppCompatActivity {
 
     private Ad ad;
-    private static Timer timer;
+    private static CountDownTimer timer;
     private GameState state = new GameState();
+    private TextView textTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        textTimer = (TextView)findViewById(R.id.textTimer);
 
         ad = new Ad(this);
 
         setupStage();
         startTimer();
-    }
-
-    private void startTimer() {
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                setGameStateTimeOut();
-            }
-        }, Settings.lvlDuration * 1000);
     }
 
     private void setupStage() {
@@ -210,7 +205,27 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
+    public void startTimer() {
+
+        timer = new CountDownTimer(Settings.DURATION_OF_LVL_IN_SECS, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+                long remainedSecs = millisUntilFinished / 1000;
+                textTimer.setText("" + (remainedSecs / 60) + ":" + formatSecs(remainedSecs % 60));// manage it accordign to you
             }
+
+            public void onFinish() {
+                textTimer.setText("0:00");
+                setGameStateTimeOut();
+                cancel();
+            }
+        }.start();
+    }
+
+    private static String formatSecs(long secs) {
+        return (secs < 10) ? "0" + secs : secs + "";
+    }
+
     private Context getActivity() {
         return this;
     }
