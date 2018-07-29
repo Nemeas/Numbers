@@ -38,4 +38,8 @@ public class Utils {
         }
         return false;
     }
+
+    public static String formatSecs(long secs) {
+        return (secs < 10) ? "0" + secs : secs + "";
+    }
 }

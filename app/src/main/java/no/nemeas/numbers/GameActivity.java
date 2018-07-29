@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 // after finishing a lvl, this is a natural spot for ads.. - done
 
 // needs something to route u into playing the game; like: start game at lvl 12.
+// needs a countdown before a lvl starts
 
 // needs to increase difficulty based on lvl.
 
@@ -50,8 +52,7 @@ public class GameActivity extends AppCompatActivity {
 
         ad = new Ad(this);
 
-        setupStage();
-        startTimer();
+        nextLvl();
     }
 
     private void setupStage() {
@@ -211,7 +212,7 @@ public class GameActivity extends AppCompatActivity {
 
             public void onTick(long millisUntilFinished) {
                 long remainedSecs = millisUntilFinished / 1000;
-                textTimer.setText("" + (remainedSecs / 60) + ":" + formatSecs(remainedSecs % 60));// manage it accordign to you
+                textTimer.setText("" + (remainedSecs / 60) + ":" + Utils.formatSecs(remainedSecs % 60));
             }
 
             public void onFinish() {
@@ -222,10 +223,6 @@ public class GameActivity extends AppCompatActivity {
         }.start();
     }
 
-    private static String formatSecs(long secs) {
-        return (secs < 10) ? "0" + secs : secs + "";
-    }
-
     private Context getActivity() {
         return this;
     }
@@ -234,7 +231,7 @@ public class GameActivity extends AppCompatActivity {
         state.failStage();
         showThumbsDown();
         setupStage();
-        // TODO - implement timing of each stage/lvl
+        // TODO - implement timing of each stage
     }
 
     public void nextLvl() {
@@ -243,10 +240,74 @@ public class GameActivity extends AppCompatActivity {
 
         // to other stuff as well
         state.nextLvl();
-        // TODO - init new view
+
+        hideBoard();
 
         setupStage();
 
-        startTimer();
+        hideTimer();
+
+        showCountDown();
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showBoard();
+                showTimer();
+                startTimer();
+            }
+        }, 3600);
+    }
+
+    private void hideTimer() {
+        textTimer.setVisibility(View.INVISIBLE);
+    }
+
+    private void showTimer() {
+        textTimer.setVisibility(View.VISIBLE);
+    }
+
+    private void hideBoard() {
+        RelativeLayout board = (RelativeLayout) findViewById(R.id.board);
+        board.setVisibility(View.INVISIBLE);
+    }
+
+    private void showCountDown() {
+        // TODO - implement
+        TextView readyText = (TextView) findViewById(R.id.readyText);
+
+        animateTextView(readyText, 0, 1200);
+
+        TextView setText = (TextView) findViewById(R.id.setText);
+
+        animateTextView (setText, 1200, 1200);
+
+        TextView goText = (TextView) findViewById(R.id.goText);
+
+        animateTextView(goText, 2400, 1200);
+    }
+
+    private void animateTextView(final TextView view, long delay, long duration) {
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(1f, 0f);
+        valueAnimator.setInterpolator(new AccelerateInterpolator()); // increase the speed first and then decrease
+        valueAnimator.setDuration(duration);
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float progress = (float) animation.getAnimatedValue();
+                view.setAlpha(progress);
+            }
+
+        });
+
+        valueAnimator.setStartDelay(delay);
+
+        valueAnimator.start();
+    }
+
+    private void showBoard() {
+        RelativeLayout board = (RelativeLayout) findViewById(R.id.board);
+        board.setVisibility(View.VISIBLE);
     }
 }
