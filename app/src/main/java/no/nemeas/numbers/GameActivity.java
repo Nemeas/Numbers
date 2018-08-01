@@ -198,13 +198,8 @@ public class GameActivity extends Activity {
                         ad.showAd();
                     }
                 });
-                builder.setNegativeButton("Back", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        Log.d("Dialog", "Back");
-                        // do something else, go back to splash?
-                        // User cancelled the dialog
-                    }
-                });
+
+                builder.setCancelable(false);
 
                 // 3. Get the AlertDialog from create()
                 AlertDialog dialog = builder.create();
