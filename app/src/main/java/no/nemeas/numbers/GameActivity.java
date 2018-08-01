@@ -125,10 +125,10 @@ public class GameActivity extends Activity {
         int margin = 20;
 
         Position[] positions = PositionHelper.getPositions(
-                centeringMarginWidth,
-                width - centeringMarginWidth,
-                centeringMarginHeight,
-                height - centeringMarginHeight,
+                centeringMarginWidth - buttonSize / 2,
+                width - centeringMarginWidth - buttonSize / 2,
+                centeringMarginHeight - buttonSize / 2,
+                height - centeringMarginHeight - buttonSize / 2,
                 buttons.size(),
                 buttonSize,
                 margin);
