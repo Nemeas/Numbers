@@ -189,7 +189,7 @@ public class GameActivity extends Activity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
                 // 2. Chain together various setter methods to set the dialog characteristics
-                builder.setMessage("wins: " + state.completedStages + "\nlosses: " + state.failedStages).setTitle("GJ");
+                builder.setMessage("Awsomenesses: " + state.completedStages + "\nMisstakes: " + state.failedStages).setTitle("GJ");
 
                 builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
