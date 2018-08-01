@@ -1,9 +1,11 @@
 package no.nemeas.numbers;
 
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -36,7 +38,7 @@ import java.util.ArrayList;
 
 // needs to increase difficulty based on lvl.
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends Activity {
 
     private Ad ad;
     private static CountDownTimer timer;
@@ -53,6 +55,12 @@ public class GameActivity extends AppCompatActivity {
         ad = new Ad(this);
 
         nextLvl();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//Set Portrait
     }
 
     private void setupStage() {
