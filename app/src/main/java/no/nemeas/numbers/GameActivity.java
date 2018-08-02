@@ -112,8 +112,6 @@ public class GameActivity extends Activity {
     }
 
     private void positionButtons(ArrayList<Button> buttons) {
-        // TODO - something fishy about the display width and height, if possible, this should be changed to use the actual relative layout in the view.
-
         Display display = getWindowManager().getDefaultDisplay();
         Point point = new Point();
 
@@ -283,7 +281,6 @@ public class GameActivity extends Activity {
     }
 
     private void showCountDown() {
-        // TODO - implement
         TextView readyText = (TextView) findViewById(R.id.readyText);
 
         animateTextView(readyText, 0, 1200);
