@@ -121,7 +121,7 @@ public class GameActivity extends Activity {
         int width = point.x;
         int height = point.y;
 
-        int buttonSize = width / 7;
+        int buttonSize = width / 6;
 
         int centeringMarginWidth = width / 4;
         int centeringMarginHeight = height / 4;
