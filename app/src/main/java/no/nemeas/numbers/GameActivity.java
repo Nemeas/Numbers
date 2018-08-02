@@ -57,13 +57,11 @@ public class GameActivity extends Activity {
 
         ad = new Ad(this);
 
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//Set Portrait
         nextLvl();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//Set Portrait
     protected void onPause() {
         super.onPause();
         this.stopped = true;
