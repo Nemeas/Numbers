@@ -42,9 +42,10 @@ import java.util.ArrayList;
 public class GameActivity extends Activity {
 
     private Ad ad;
-    private static CountDownTimer timer;
+    private CountDownTimer timer;
     private GameState state = new GameState();
     private TextView textTimer;
+    private boolean stopped = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,9 @@ public class GameActivity extends Activity {
     protected void onResume() {
         super.onResume();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//Set Portrait
+    protected void onPause() {
+        super.onPause();
+        this.stopped = true;
     }
 
     private void setupStage() {
@@ -221,8 +225,10 @@ public class GameActivity extends Activity {
             }
 
             public void onFinish() {
-                textTimer.setText("0:00");
-                setGameStateTimeOut();
+                if (!stopped) {
+                    textTimer.setText("0:00");
+                    setGameStateTimeOut();
+                }
                 cancel();
             }
         }.start();
