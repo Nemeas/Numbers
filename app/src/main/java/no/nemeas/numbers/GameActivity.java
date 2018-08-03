@@ -11,7 +11,6 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -46,6 +45,7 @@ public class GameActivity extends Activity {
     private GameState state = new GameState();
     private TextView textTimer;
     private boolean stopped = false;
+    private long timeRemaning = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +64,19 @@ public class GameActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+        if (this.timer != null)
+            this.timer.cancel();
         this.stopped = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.stopped = false;
+        Log.d("remaining time", this.timeRemaning + "");
+        if (timeRemaning < Settings.DURATION_OF_LVL_IN_MILLI_SECS) {
+            startTimer();
+        }
     }
 
     private void setupStage() {
@@ -119,12 +131,12 @@ public class GameActivity extends Activity {
         int width = point.x;
         int height = point.y;
 
-        int buttonSize = width / 6;
+        int buttonSize = width / Settings.BUTTON_RELATIVE_SIZE;
 
-        int centeringMarginWidth = width / 4;
-        int centeringMarginHeight = height / 4;
+        int centeringMarginWidth = width / Settings.GAME_RELATIVE_MARGIN;
+        int centeringMarginHeight = height / Settings.GAME_RELATIVE_MARGIN;
 
-        int margin = 20;
+        int margin = Settings.BUTTON_MARGIN;
 
         Position[] positions = PositionHelper.getPositions(
                 centeringMarginWidth - buttonSize / 2,
@@ -154,18 +166,18 @@ public class GameActivity extends Activity {
 
     private void showThumbsUp() {
         final ImageView thumbsUp = (ImageView) findViewById(R.id.thumbsUp);
-        animateImage(thumbsUp);
+        animateImage(thumbsUp, Settings.SUCCESS_IMAGE_DURATION);
     }
 
     private void showThumbsDown() {
         final ImageView thumbsDown = (ImageView) findViewById(R.id.thumbsDown);
-        animateImage(thumbsDown);
+        animateImage(thumbsDown, Settings.FAILURE_IMAGE_DURATION);
     }
 
-    private void animateImage(final ImageView image) {
+    private void animateImage(final ImageView image, int duration) {
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(1f, 0f);
         valueAnimator.setInterpolator(new AccelerateInterpolator()); // increase the speed first and then decrease
-        valueAnimator.setDuration(500);
+        valueAnimator.setDuration(duration);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -178,6 +190,7 @@ public class GameActivity extends Activity {
 
     private void setGameStateTimeOut() {
         state.timeOut();
+        timeRemaning = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
         showNextLvlDialog();
 
         // show stats
@@ -212,12 +225,14 @@ public class GameActivity extends Activity {
     }
 
     public void startTimer() {
-
-        timer = new CountDownTimer(Settings.DURATION_OF_LVL_IN_SECS, 1000) {
+        if (this.stopped)
+            return;
+        timer = new CountDownTimer(timeRemaning, 1000) {
 
             public void onTick(long millisUntilFinished) {
-                long remainedSecs = millisUntilFinished / 1000;
-                textTimer.setText("" + (remainedSecs / 60) + ":" + Utils.formatSecs(remainedSecs % 60));
+                timeRemaning = millisUntilFinished;
+                long secs = timeRemaning / 1000;
+                textTimer.setText("" + (secs / 60) + ":" + Utils.formatSecs(secs % 60));
             }
 
             public void onFinish() {
@@ -264,7 +279,7 @@ public class GameActivity extends Activity {
                 showTimer();
                 startTimer();
             }
-        }, 3600);
+        }, Settings.DURATION_OF_COUNTDOWN_IN_MILLI_SECS);
     }
 
     private void hideTimer() {
@@ -283,15 +298,17 @@ public class GameActivity extends Activity {
     private void showCountDown() {
         TextView readyText = (TextView) findViewById(R.id.readyText);
 
-        animateTextView(readyText, 0, 1200);
+        int duration = Settings.DURATION_OF_COUNTDOWN_IN_MILLI_SECS / 3;
+
+        animateTextView(readyText, duration * 0, duration);
 
         TextView setText = (TextView) findViewById(R.id.setText);
 
-        animateTextView (setText, 1200, 1200);
+        animateTextView (setText, duration * 1, duration);
 
         TextView goText = (TextView) findViewById(R.id.goText);
 
-        animateTextView(goText, 2400, 1200);
+        animateTextView(goText, duration * 2, duration);
     }
 
     private void animateTextView(final TextView view, long delay, long duration) {
