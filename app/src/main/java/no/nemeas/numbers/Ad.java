@@ -47,7 +47,7 @@ public class Ad {
             public void onAdClosed() {
                 // Proceed to the next level.
                 Log.d("ad", "ad closed");
-                context.nextLvl();
+                context.nextStage();
             }
         });
         return interstitialAd;
@@ -66,7 +66,7 @@ public class Ad {
             mInterstitialAd.show();
         } else {
             Toast.makeText(context, "Ad did not load", Toast.LENGTH_SHORT).show();
-            context.nextLvl();
+            context.nextStage();
         }
     }
 }

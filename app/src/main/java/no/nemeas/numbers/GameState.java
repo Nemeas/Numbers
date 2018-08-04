@@ -2,44 +2,42 @@ package no.nemeas.numbers;
 
 import android.util.Log;
 
-import java.util.Random;
-
 public class GameState {
     public StateEnum state = StateEnum.initial;
-    public int completedStages = 0;
-    public int failedStages = 0;
+    public int completedRounds = 0;
+    public int failedRounds = 0;
     public int lvl = 0;
     private int[] numbers;
 
-    public void completeStage() {
+    public void completeRound() {
         state = StateEnum.stageComplete;
         Log.d("a", "complete");
-        completedStages ++;
+        completedRounds++;
     }
 
-    public void failStage() {
+    public void failRound() {
         state = StateEnum.stageFailed;
         Log.d("a", "fail");
-        failedStages ++;
+        failedRounds++;
     }
 
     public void timeOut() {
         state = StateEnum.timeout;
-        Log.d("a", "timeout \nwins:" + completedStages + "\nlosses: " + failedStages);
+        Log.d("a", "timeout \nwins:" + completedRounds + "\nlosses: " + failedRounds);
     }
 
-    public void newStage() {
+    public void newRound() {
         numbers = this.getNumbers();
     }
 
-    public void nextLvl() {
+    public void nextStage() {
         state = StateEnum.initial;
-        completedStages = 0;
-        failedStages = 0;
+        completedRounds = 0;
+        failedRounds = 0;
         ++lvl;
     }
 
-    public int[] getStageNumbers() {
+    public int[] getRoundNumbers() {
         return this.numbers;
     }
 
@@ -69,19 +67,16 @@ public class GameState {
         numbers = temp;
     }
 
-    public boolean isStageComplete() {
+    public boolean isRoundComplete() {
         return numbers.length == 0;
     }
 
     private int[] getNumbers() {
-        // TODO - needs to take into account the lvl of the player.
-        Random r = new Random();
+        Setup setup = DifficultyManager.getSetup(completedRounds, failedRounds, lvl);
 
-        int numberOfNumbers = 5;
-
-        int[] list = new int[numberOfNumbers];
-        for(int i = 0 ; i < numberOfNumbers; i++) {
-            list[i] = r.nextInt(10);
+        int[] list = new int[setup.n];
+        for(int i = 0 ; i < setup.n; i++) {
+            list[i] = Utils.getRandomNumberInRange(setup.min, setup.max);
         }
 
         list = Utils.distinct(list);

@@ -34,7 +34,7 @@ import java.util.ArrayList;
 // after finishing a lvl, this is a natural spot for ads.. - done
 
 // needs something to route u into playing the game; like: start game at lvl 12.
-// needs a countdown before a lvl starts
+// needs a countdown before a lvl starts - done
 
 // needs to increase difficulty based on lvl.
 
@@ -45,7 +45,7 @@ public class GameActivity extends Activity {
     private GameState state = new GameState();
     private TextView textTimer;
     private boolean stopped = false;
-    private long timeRemaning = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
+    private long timeRemaining = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +58,7 @@ public class GameActivity extends Activity {
         ad = new Ad(this);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//Set Portrait
-        nextLvl();
+        nextStage();
     }
 
     @Override
@@ -73,19 +73,19 @@ public class GameActivity extends Activity {
     protected void onResume() {
         super.onResume();
         this.stopped = false;
-        Log.d("remaining time", this.timeRemaning + "");
-        if (timeRemaning < Settings.DURATION_OF_LVL_IN_MILLI_SECS) {
+        Log.d("remaining time", this.timeRemaining + "");
+        if (timeRemaining < Settings.DURATION_OF_LVL_IN_MILLI_SECS) {
             startTimer();
         }
     }
 
-    private void setupStage() {
+    private void setupNewRound() {
 
-        state.newStage();
+        state.newRound();
 
         ArrayList<Button> buttons = new ArrayList<>();
 
-        for (final int number : state.getStageNumbers()) {
+        for (final int number : state.getRoundNumbers()) {
             Button b = new Button(this);
             b.setBackgroundColor(Utils.getRandomBackgroundColor());
             b.setText(number + "");
@@ -103,10 +103,10 @@ public class GameActivity extends Activity {
                         state.removeNumber(number);
                     } else {
                         b.setBackgroundColor(Color.RED);
-                        setGameStateStageFailed();
+                        setGameStateRoundFailed();
                     }
 
-                    if (state.isStageComplete()) setGameStateStageComplete();
+                    if (state.isRoundComplete()) setGameStateRoundComplete();
                 }
             });
             buttons.add(b);
@@ -156,12 +156,12 @@ public class GameActivity extends Activity {
         }
     }
 
-    private void setGameStateStageComplete() {
-        state.completeStage();
+    private void setGameStateRoundComplete() {
+        state.completeRound();
 
         showThumbsUp();
 
-        setupStage();
+        setupNewRound();
     }
 
     private void showThumbsUp() {
@@ -190,13 +190,13 @@ public class GameActivity extends Activity {
 
     private void setGameStateTimeOut() {
         state.timeOut();
-        timeRemaning = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
-        showNextLvlDialog();
+        timeRemaining = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
+        showNextStageDialog();
 
         // show stats
     }
 
-    private void showNextLvlDialog() {
+    private void showNextStageDialog() {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -204,7 +204,7 @@ public class GameActivity extends Activity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
                 // 2. Chain together various setter methods to set the dialog characteristics
-                builder.setMessage("Awsomenesses: " + state.completedStages + "\nMisstakes: " + state.failedStages).setTitle("GJ");
+                builder.setMessage("Awsomenesses: " + state.completedRounds + "\nMisstakes: " + state.failedRounds).setTitle("GJ");
 
                 builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -227,11 +227,11 @@ public class GameActivity extends Activity {
     public void startTimer() {
         if (this.stopped)
             return;
-        timer = new CountDownTimer(timeRemaning, 1000) {
+        timer = new CountDownTimer(timeRemaining, 1000) {
 
             public void onTick(long millisUntilFinished) {
-                timeRemaning = millisUntilFinished;
-                long secs = timeRemaning / 1000;
+                timeRemaining = millisUntilFinished;
+                long secs = timeRemaining / 1000;
                 textTimer.setText("" + (secs / 60) + ":" + Utils.formatSecs(secs % 60));
             }
 
@@ -249,23 +249,23 @@ public class GameActivity extends Activity {
         return this;
     }
 
-    private void setGameStateStageFailed() {
-        state.failStage();
+    private void setGameStateRoundFailed() {
+        state.failRound();
         showThumbsDown();
-        setupStage();
-        // TODO - implement timing of each stage
+        setupNewRound();
+        // TODO - implement timing of each round?
     }
 
-    public void nextLvl() {
-        // prepare for the next lvl
+    public void nextStage() {
+        // prepare for the next stage
         ad.loadNewAd();
 
         // to other stuff as well
-        state.nextLvl();
+        state.nextStage();
 
         hideBoard();
 
-        setupStage();
+        setupNewRound();
 
         hideTimer();
 
