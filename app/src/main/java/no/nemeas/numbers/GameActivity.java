@@ -72,11 +72,11 @@ public class GameActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        this.stopped = false;
         Log.d("remaining time", this.timeRemaining + "");
-        if (timeRemaining < Settings.DURATION_OF_LVL_IN_MILLI_SECS) {
-            startTimer();
-        }
+        this.stopped = false;
+
+        startTimer();
+
     }
 
     private void setupNewRound() {
@@ -230,6 +230,8 @@ public class GameActivity extends Activity {
         timer = new CountDownTimer(timeRemaining, 1000) {
 
             public void onTick(long millisUntilFinished) {
+                if (((GameActivity)getActivity()).stopped)
+                    cancel();
                 timeRemaining = millisUntilFinished;
                 long secs = timeRemaining / 1000;
                 textTimer.setText("" + (secs / 60) + ":" + Utils.formatSecs(secs % 60));
