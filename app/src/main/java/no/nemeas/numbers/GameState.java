@@ -6,7 +6,7 @@ public class GameState {
     public StateEnum state = StateEnum.initial;
     public int completedRounds = 0;
     public int failedRounds = 0;
-    public int lvl = 0;
+    public int lvl = 1;
     private int[] numbers;
 
     public void completeRound() {
@@ -32,9 +32,11 @@ public class GameState {
 
     public void nextStage() {
         state = StateEnum.initial;
+        if (completedRounds > Settings.LVL_CAP) {
+            ++lvl;
+        }
         completedRounds = 0;
         failedRounds = 0;
-        ++lvl;
     }
 
     public int[] getRoundNumbers() {
