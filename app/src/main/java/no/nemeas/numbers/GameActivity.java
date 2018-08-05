@@ -44,7 +44,7 @@ public class GameActivity extends Activity {
     private CountDownTimer timer;
     private GameState state = new GameState();
     private TextView textTimer;
-    private boolean stopped = false;
+    private boolean stopped = true;
     private long timeRemaining = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
 
     @Override
@@ -73,9 +73,10 @@ public class GameActivity extends Activity {
     protected void onResume() {
         super.onResume();
         Log.d("remaining time", this.timeRemaining + "");
-        this.stopped = false;
 
         startTimer();
+
+        this.stopped = false;
 
     }
 
