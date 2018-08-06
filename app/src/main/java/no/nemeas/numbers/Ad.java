@@ -33,20 +33,20 @@ public class Ad {
         interstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdLoaded() {
-                Log.d("ad", "Loaded");
+                Log.d(GameActivity.DEBUG, "Loaded");
                 //mNextLevelButton.setEnabled(true);
             }
 
             @Override
             public void onAdFailedToLoad(int errorCode) {
-                Log.d("ad", "failed to load");
+                Log.d(GameActivity.DEBUG, "failed to load");
                 //mNextLevelButton.setEnabled(true);
             }
 
             @Override
             public void onAdClosed() {
                 // Proceed to the next level.
-                Log.d("ad", "ad closed");
+                Log.d(GameActivity.DEBUG, "ad closed");
                 context.nextStage();
             }
         });

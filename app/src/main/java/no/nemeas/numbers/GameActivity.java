@@ -46,11 +46,13 @@ public class GameActivity extends Activity {
     private TextView textTimer;
     private boolean stopped = true;
     private long timeRemaining = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
+    public static final String DEBUG = "DeBuG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        Log.d(DEBUG, "onCreate");
         setContentView(R.layout.activity_game);
 
         textTimer = (TextView)findViewById(R.id.textTimer);
@@ -67,12 +69,15 @@ public class GameActivity extends Activity {
         if (this.timer != null)
             this.timer.cancel();
         this.stopped = true;
+        Log.d(DEBUG, "onPause");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("remaining time", this.timeRemaining + "");
+        Log.d(DEBUG, "onResume");
+        Log.d(DEBUG, "onResume.stageComplete: " + this.stageComplete);
+        Log.d(DEBUG, "onResume.timer.paused: " + this.timer.paused);
 
         startTimer();
 
@@ -81,6 +86,7 @@ public class GameActivity extends Activity {
     }
 
     private void setupNewRound() {
+        Log.d(DEBUG, "setupNewRound");
 
         state.newRound();
 
@@ -190,6 +196,7 @@ public class GameActivity extends Activity {
     }
 
     private void setGameStateTimeOut() {
+        Log.d(DEBUG, "setGameStateTimeOut");
         state.timeOut();
         timeRemaining = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
         showNextStageDialog();
@@ -198,6 +205,8 @@ public class GameActivity extends Activity {
     }
 
     private void showNextStageDialog() {
+        Log.d(DEBUG, "showNextStageDialog");
+
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -209,7 +218,7 @@ public class GameActivity extends Activity {
 
                 builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Log.d("Dialog", "Continue");
+                        Log.d(DEBUG, "showNextStageDialog.Continue");
                         // User clicked OK button
                         ad.showAd();
                     }
@@ -260,6 +269,8 @@ public class GameActivity extends Activity {
     }
 
     public void nextStage() {
+        Log.d(DEBUG, "nextStage");
+
         // prepare for the next stage
         ad.loadNewAd();
 
@@ -287,19 +298,23 @@ public class GameActivity extends Activity {
 
     private void hideTimer() {
         textTimer.setVisibility(View.INVISIBLE);
+        Log.d(DEBUG, "hideTimer");
     }
 
     private void showTimer() {
         textTimer.setVisibility(View.VISIBLE);
+        Log.d(DEBUG, "showTimer");
     }
 
     private void hideBoard() {
         RelativeLayout board = (RelativeLayout) findViewById(R.id.board);
         board.setVisibility(View.INVISIBLE);
+        Log.d(DEBUG, "hideBoard");
     }
 
     private void showCountDown() {
         TextView readyText = (TextView) findViewById(R.id.readyText);
+        Log.d(DEBUG, "showCountDown");
 
         int duration = Settings.DURATION_OF_COUNTDOWN_IN_MILLI_SECS / 3;
 
@@ -333,6 +348,8 @@ public class GameActivity extends Activity {
     }
 
     private void showBoard() {
+        Log.d(DEBUG, "showBoard");
+
         RelativeLayout board = (RelativeLayout) findViewById(R.id.board);
         board.setVisibility(View.VISIBLE);
     }
