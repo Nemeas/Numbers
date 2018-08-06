@@ -41,17 +41,16 @@ import java.util.ArrayList;
 public class GameActivity extends Activity {
 
     private Ad ad;
-    private CountDownTimer timer;
     private GameState state = new GameState();
     private TextView textTimer;
-    private boolean stopped = true;
-    private long timeRemaining = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
+    private Timer timer = new Timer(this);
+    private boolean stageComplete = false;
+
     public static final String DEBUG = "DeBuG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         Log.d(DEBUG, "onCreate");
         setContentView(R.layout.activity_game);
 
@@ -59,17 +58,16 @@ public class GameActivity extends Activity {
 
         ad = new Ad(this);
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//Set Portrait
+        setupGamePremise();
+
         nextStage();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (this.timer != null)
-            this.timer.cancel();
-        this.stopped = true;
         Log.d(DEBUG, "onPause");
+        this.timer.pause();
     }
 
     @Override
@@ -79,10 +77,16 @@ public class GameActivity extends Activity {
         Log.d(DEBUG, "onResume.stageComplete: " + this.stageComplete);
         Log.d(DEBUG, "onResume.timer.paused: " + this.timer.paused);
 
-        startTimer();
+        if(this.stageComplete)
+            return;
 
-        this.stopped = false;
+        if(this.timer.paused)
+            this.timer.resume();
+    }
 
+    private void setupGamePremise() {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//Set Portrait
     }
 
     private void setupNewRound() {
@@ -197,11 +201,11 @@ public class GameActivity extends Activity {
 
     private void setGameStateTimeOut() {
         Log.d(DEBUG, "setGameStateTimeOut");
-        state.timeOut();
-        timeRemaining = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
-        showNextStageDialog();
 
-        // show stats
+        state.timeOut();
+        timer.stop();
+        this.stageComplete = true;
+        showNextStageDialog();
     }
 
     private void showNextStageDialog() {
@@ -234,29 +238,6 @@ public class GameActivity extends Activity {
         });
     }
 
-    public void startTimer() {
-        if (this.stopped)
-            return;
-        timer = new CountDownTimer(timeRemaining, 1000) {
-
-            public void onTick(long millisUntilFinished) {
-                if (((GameActivity)getActivity()).stopped)
-                    cancel();
-                timeRemaining = millisUntilFinished;
-                long secs = timeRemaining / 1000;
-                textTimer.setText("" + (secs / 60) + ":" + Utils.formatSecs(secs % 60));
-            }
-
-            public void onFinish() {
-                if (!stopped) {
-                    textTimer.setText("0:00");
-                    setGameStateTimeOut();
-                }
-                cancel();
-            }
-        }.start();
-    }
-
     private Context getActivity() {
         return this;
     }
@@ -270,6 +251,8 @@ public class GameActivity extends Activity {
 
     public void nextStage() {
         Log.d(DEBUG, "nextStage");
+
+        this.stageComplete = false;
 
         // prepare for the next stage
         ad.loadNewAd();
@@ -291,7 +274,7 @@ public class GameActivity extends Activity {
             public void run() {
                 showBoard();
                 showTimer();
-                startTimer();
+                ((GameActivity)getActivity()).timer.start();
             }
         }, Settings.DURATION_OF_COUNTDOWN_IN_MILLI_SECS);
     }
@@ -313,19 +296,17 @@ public class GameActivity extends Activity {
     }
 
     private void showCountDown() {
-        TextView readyText = (TextView) findViewById(R.id.readyText);
         Log.d(DEBUG, "showCountDown");
 
         int duration = Settings.DURATION_OF_COUNTDOWN_IN_MILLI_SECS / 3;
 
+        TextView readyText = (TextView) findViewById(R.id.readyText);
         animateTextView(readyText, duration * 0, duration);
 
         TextView setText = (TextView) findViewById(R.id.setText);
-
         animateTextView (setText, duration * 1, duration);
 
         TextView goText = (TextView) findViewById(R.id.goText);
-
         animateTextView(goText, duration * 2, duration);
     }
 
@@ -352,5 +333,16 @@ public class GameActivity extends Activity {
 
         RelativeLayout board = (RelativeLayout) findViewById(R.id.board);
         board.setVisibility(View.VISIBLE);
+    }
+
+    public void onTimerUpdate(long millisRemaining) {
+        long secs = millisRemaining / 1000;
+        textTimer.setText("" + (secs / 60) + ":" + Utils.formatSecs(secs % 60));
+    }
+
+    public void onTimerFinished() {
+        Log.d(DEBUG, "onTimerFinished");
+        textTimer.setText("0:00");
+        setGameStateTimeOut();
     }
 }
