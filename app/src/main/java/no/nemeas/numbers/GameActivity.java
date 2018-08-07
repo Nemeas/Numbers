@@ -54,6 +54,8 @@ public class GameActivity extends Activity {
         Log.d(DEBUG, "onCreate");
         setContentView(R.layout.activity_game);
 
+        state.lvl = getIntent().getIntExtra("lvl", 1);
+
         textTimer = (TextView)findViewById(R.id.textTimer);
 
         ad = new Ad(this);
