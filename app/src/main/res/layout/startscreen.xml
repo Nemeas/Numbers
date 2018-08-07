@@ -4,6 +4,7 @@
     android:layout_height="match_parent">
 
     <ImageView
+        android:id="@+id/splash"
         android:layout_width="207dp"
         android:layout_height="195dp"
         android:layout_alignParentTop="true"
