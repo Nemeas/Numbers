@@ -10,20 +10,7 @@
         android:layout_width="207dp"
         android:layout_height="195dp"
         android:layout_centerInParent="true"
-        android:src="@drawable/next_lvl" />
-
-    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/profile_image"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        app:civ_border_color="#FF000000"
-        app:civ_border_width="2dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="16dp" />
+        android:src="@drawable/ic_drawing" />
 
     <Button
         android:id="@+id/playButton"
@@ -33,11 +20,5 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="31dp"
         android:text="Play" />
-
-    <com.google.android.gms.common.SignInButton
-        android:id="@+id/sign_in_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true" />
 
 </RelativeLayout>

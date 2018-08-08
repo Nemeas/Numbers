@@ -23,14 +23,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class StartScreenActivity extends Activity {
 
     private ImageView splashImage;
-    private CircleImageView profileImage;
-    private SignInButton loginButton;
     private int lvl = 1;
-    private GoogleSignInClient googleSignInClient;
 
     private Button playButton;
-
-    private int RC_SIGN_IN = 123123123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,30 +33,6 @@ public class StartScreenActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.startscreen);
-
-        this.profileImage = (CircleImageView) findViewById(R.id.profile_image);
-
-        this.loginButton = (SignInButton) findViewById(R.id.sign_in_button);
-        this.loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switch (view.getId()) {
-                    case R.id.sign_in_button:
-                        signIn();
-                        break;
-                }
-            }
-        });
-
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .requestProfile()
-            .build();
-
-        // Build a GoogleSignInClient with the options specified by gso.
-        googleSignInClient = GoogleSignIn.getClient(this, gso);
 
         this.splashImage = (ImageView) findViewById(R.id.splash);
 
@@ -83,61 +54,6 @@ public class StartScreenActivity extends Activity {
                 startActivity(i);
             }
         });
-    }
-
-    private void signIn() {
-        Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-        }
-    }
-
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
-            // Signed in successfully, show authenticated UI.
-            updateUI(account);
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w(GameActivity.DEBUG, "signInResult:failed code=" + e.getStatusCode());
-            updateUI(null);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        updateUI(account);
-    }
-
-    private void updateUI(GoogleSignInAccount account){
-        if (account == null) {
-            this.loginButton.setVisibility(View.VISIBLE);
-            this.splashImage.setVisibility(View.INVISIBLE);
-            this.playButton.setVisibility(View.INVISIBLE);
-        } else {
-            new DownloadImageTask(profileImage).execute(account.getPhotoUrl() == null ? null : account.getPhotoUrl().toString());
-            this.loginButton.setVisibility(View.INVISIBLE);
-            this.splashImage.setVisibility(View.VISIBLE);
-            this.playButton.setVisibility(View.VISIBLE);
-
-        }
     }
 
     private Activity getThis() {
