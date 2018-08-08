@@ -3,7 +3,6 @@ package no.nemeas.numbers;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,9 +18,6 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
-import java.io.InputStream;
-import java.net.URL;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class StartScreenActivity extends Activity {
@@ -31,6 +27,8 @@ public class StartScreenActivity extends Activity {
     private SignInButton loginButton;
     private int lvl = 1;
     private GoogleSignInClient googleSignInClient;
+
+    private Button playButton;
 
     private int RC_SIGN_IN = 123123123;
 
@@ -76,8 +74,8 @@ public class StartScreenActivity extends Activity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//Set Portrait
 
-        Button play = (Button) findViewById(R.id.playButton);
-        play.setOnClickListener(new View.OnClickListener() {
+        this.playButton = (Button) findViewById(R.id.playButton);
+        this.playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(getThis(), GameActivity.class);
@@ -131,9 +129,14 @@ public class StartScreenActivity extends Activity {
     private void updateUI(GoogleSignInAccount account){
         if (account == null) {
             this.loginButton.setVisibility(View.VISIBLE);
+            this.splashImage.setVisibility(View.INVISIBLE);
+            this.playButton.setVisibility(View.INVISIBLE);
         } else {
-            new DownloadImageTask(profileImage).execute(account.getPhotoUrl().toString());
+            new DownloadImageTask(profileImage).execute(account.getPhotoUrl() == null ? null : account.getPhotoUrl().toString());
             this.loginButton.setVisibility(View.INVISIBLE);
+            this.splashImage.setVisibility(View.VISIBLE);
+            this.playButton.setVisibility(View.VISIBLE);
+
         }
     }
 
