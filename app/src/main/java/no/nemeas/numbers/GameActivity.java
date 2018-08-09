@@ -5,12 +5,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -89,6 +91,17 @@ public class GameActivity extends Activity {
     private void setupGamePremise() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//Set Portrait
+    }
+
+    private void saveNewHighscore(int score) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        int i = 0;
+        int a = preferences.getInt("highScore", i);
+        if (score < a)
+            return;
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("highScore", score);
+        editor.apply();
     }
 
     private void setupNewRound() {
@@ -207,6 +220,7 @@ public class GameActivity extends Activity {
         state.timeOut();
         timer.stop();
         this.stageComplete = true;
+        saveNewHighscore(state.completedRounds - state.failedRounds);
         showNextStageDialog();
     }
 
