@@ -47,6 +47,7 @@ public class GameActivity extends Activity {
     private TextView textTimer;
     private Timer timer = new Timer(this);
     private boolean stageComplete = false;
+    // private FirebaseAnalytics mFirebaseAnalytics;
 
     public static final String DEBUG = "DeBuG";
 
@@ -234,7 +235,8 @@ public class GameActivity extends Activity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
                 // 2. Chain together various setter methods to set the dialog characteristics
-                builder.setMessage("Awsomenesses: " + state.completedRounds + "\nMisstakes: " + state.failedRounds).setTitle("GJ");
+                String title = getCompleteTitle(state.completedRounds - state.failedRounds);
+                builder.setMessage("Awsomeness: " + state.completedRounds + "\nFails: " + state.failedRounds).setTitle(title);
 
                 builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -252,6 +254,24 @@ public class GameActivity extends Activity {
                 dialog.show();
             }
         });
+    }
+
+    private String getCompleteTitle(int score) {
+        if (score > 35)
+            return "Un freakin believable!";
+        if (score > 30)
+            return "Awsome!";
+        if (score > 25)
+            return "Wow! Keep up the good work!";
+        if (score > 20)
+            return "Gj!";
+        if (score > 15)
+            return "Nice";
+        if (score > 10)
+            return "Come on, you can do better!";
+        if (score > 5)
+            return "Well well..";
+        return "Try again later..";
     }
 
     private Context getActivity() {
