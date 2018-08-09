@@ -2,13 +2,16 @@ package no.nemeas.numbers;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -54,6 +57,23 @@ public class StartScreenActivity extends Activity {
                 startActivity(i);
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setHighScore();
+    }
+
+    private void setHighScore() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        int i = 0;
+        int a = preferences.getInt("highScore", i);
+
+        if (a > 0) {
+            TextView highScore = (TextView) findViewById(R.id.highScore);
+            highScore.setText("Highscore: " + a);
+        }
     }
 
     private Activity getThis() {
