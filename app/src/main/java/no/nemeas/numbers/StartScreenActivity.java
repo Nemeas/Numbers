@@ -1,11 +1,17 @@
 package no.nemeas.numbers;
 
+import android.accounts.Account;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -13,12 +19,19 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.games.Games;
+import com.google.android.gms.games.Player;
+import com.google.android.gms.games.PlayersClient;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -26,6 +39,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class StartScreenActivity extends Activity {
 
     private ImageView splashImage;
+    private CircleImageView profileImage;
     private int lvl = 1;
 
     private Button playButton;
@@ -38,6 +52,21 @@ public class StartScreenActivity extends Activity {
         setContentView(R.layout.startscreen);
 
         this.splashImage = (ImageView) findViewById(R.id.splash);
+        this.profileImage = (CircleImageView) findViewById(R.id.profile_image);
+
+        GoogleSignInAccount account = (GoogleSignInAccount) getIntent().getParcelableExtra("account");
+
+        PlayersClient playersClient = Games.getPlayersClient(this, account);
+
+        playersClient.getCurrentPlayer().addOnCompleteListener(new OnCompleteListener<Player>() {
+            @Override
+            public void onComplete(@NonNull Task<Player> task) {
+                Player p = task.getResult();
+                new DownloadImageTask(profileImage).execute(p.getIconImageUrl() == null ? null : p.getIconImageUrl());
+            }
+        });
+
+        Log.d(GameActivity.DEBUG, account.toJson());
 
         this.splashImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,23 +86,6 @@ public class StartScreenActivity extends Activity {
                 startActivity(i);
             }
         });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        setHighScore();
-    }
-
-    private void setHighScore() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        int i = 0;
-        int a = preferences.getInt("highScore", i);
-
-        if (a > 0) {
-            TextView highScore = (TextView) findViewById(R.id.highScore);
-            highScore.setText("Highscore: " + a);
-        }
     }
 
     private Activity getThis() {
