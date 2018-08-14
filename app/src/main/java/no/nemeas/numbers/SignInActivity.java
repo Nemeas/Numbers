@@ -27,18 +27,12 @@ public class SignInActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (isSignedIn()) {
+        if (isSignedIn())
             spawnStartScreenActivity(GoogleSignIn.getLastSignedInAccount(this));
-        }
+        else
+            startSignInIntent();
 
         setContentView(R.layout.sign_in);
-
-        findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startSignInIntent();
-            }
-        });
     }
 
     private void spawnStartScreenActivity(GoogleSignInAccount account) {
@@ -86,20 +80,20 @@ public class SignInActivity extends Activity {
     private void signInSilently() {
         GoogleSignInClient signInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN);
         signInClient.silentSignIn().addOnCompleteListener(this,
-                new OnCompleteListener<GoogleSignInAccount>() {
-                    @Override
-                    public void onComplete(@NonNull Task<GoogleSignInAccount> task) {
-                        if (task.isSuccessful()) {
-                            // The signed in account is stored in the task's result.
-                            GoogleSignInAccount signedInAccount = task.getResult();
-                            spawnStartScreenActivity(signedInAccount);
-                        } else {
-                            // Player will need to sign-in explicitly using via UI
-                            if (((ApiException)task.getException()).getStatusCode() == CommonStatusCodes.SIGN_IN_REQUIRED) {
-                                startSignInIntent();
-                            }
+            new OnCompleteListener<GoogleSignInAccount>() {
+                @Override
+                public void onComplete(@NonNull Task<GoogleSignInAccount> task) {
+                    if (task.isSuccessful()) {
+                        // The signed in account is stored in the task's result.
+                        GoogleSignInAccount signedInAccount = task.getResult();
+                        spawnStartScreenActivity(signedInAccount);
+                    } else {
+                        // Player will need to sign-in explicitly using via UI
+                        if (((ApiException)task.getException()).getStatusCode() == CommonStatusCodes.SIGN_IN_REQUIRED) {
+                            startSignInIntent();
                         }
                     }
-                });
+                }
+            });
     }
 }
