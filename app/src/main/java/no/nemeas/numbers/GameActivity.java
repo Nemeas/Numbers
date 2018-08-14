@@ -23,6 +23,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.games.Games;
+
 import java.util.ArrayList;
 
 // the game should be divided into stages and lvls, where one lvl contains an infinity number of stages. - done
@@ -71,16 +74,12 @@ public class GameActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(DEBUG, "onPause");
         this.timer.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(DEBUG, "onResume");
-        Log.d(DEBUG, "onResume.stageComplete: " + this.stageComplete);
-        Log.d(DEBUG, "onResume.timer.paused: " + this.timer.paused);
 
         if(this.stageComplete)
             return;
@@ -95,14 +94,8 @@ public class GameActivity extends Activity {
     }
 
     private void saveNewHighscore(int score) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        int i = 0;
-        int a = preferences.getInt("highScore", i);
-        if (score < a)
-            return;
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("highScore", score);
-        editor.apply();
+        Games.getLeaderboardsClient(this, GoogleSignIn.getLastSignedInAccount(this))
+            .submitScore(getString(R.string.leaderboard_highscore), score);
     }
 
     private void setupNewRound() {
