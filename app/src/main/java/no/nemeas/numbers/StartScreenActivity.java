@@ -1,20 +1,28 @@
 package no.nemeas.numbers;
 
 import android.accounts.Account;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -64,7 +72,7 @@ public class StartScreenActivity extends Activity {
             }
         });
 
-        ((Button) findViewById(R.id.show_leaderboard_button)).setOnClickListener(new View.OnClickListener() {
+        ((ImageView) findViewById(R.id.show_leaderboard_button)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showLeaderboard();
@@ -81,6 +89,8 @@ public class StartScreenActivity extends Activity {
             }
         });
 
+        animateImage((ImageView) findViewById(R.id.show_leaderboard_button));
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//Set Portrait
 
         this.playButton = (Button) findViewById(R.id.playButton);
@@ -92,6 +102,19 @@ public class StartScreenActivity extends Activity {
             startActivity(i);
             }
         });
+    }
+
+    private void animateImage(final ImageView image) {
+        RotateAnimation rotate = new RotateAnimation(
+                -15, 35,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f
+        );
+        rotate.setDuration(1400);
+        rotate.setRepeatMode(RotateAnimation.REVERSE);
+        rotate.setInterpolator(new AccelerateInterpolator());
+        rotate.setRepeatCount(Animation.INFINITE);
+        image.startAnimation(rotate);
     }
 
     private Activity getThis() {
