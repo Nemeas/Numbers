@@ -60,13 +60,13 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.LEVEL, state.lvl + "");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LEVEL_START, bundle);
-
         setContentView(R.layout.activity_game);
 
         state.lvl = getIntent().getIntExtra("lvl", 1);
+
+        Bundle bundle = new Bundle();
+        bundle.putString("start_game_lvl", state.lvl + "");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LEVEL_START, bundle);
 
         textTimer = (TextView)findViewById(R.id.textTimer);
 
