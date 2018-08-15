@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.games.Games;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
 
@@ -50,14 +51,19 @@ public class GameActivity extends Activity {
     private TextView textTimer;
     private Timer timer = new Timer(this);
     private boolean stageComplete = false;
-    // private FirebaseAnalytics mFirebaseAnalytics;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     public static final String DEBUG = "DeBuG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(DEBUG, "onCreate");
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.LEVEL, state.lvl + "");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LEVEL_START, bundle);
+
         setContentView(R.layout.activity_game);
 
         state.lvl = getIntent().getIntExtra("lvl", 1);

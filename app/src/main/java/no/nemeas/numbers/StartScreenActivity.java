@@ -37,11 +37,13 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.games.Games;
+import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.Player;
 import com.google.android.gms.games.PlayersClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -49,6 +51,7 @@ public class StartScreenActivity extends Activity {
 
     private int lvl = 1;
     private static final int RC_LEADERBOARD_UI = 9004;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     private Button playButton;
 
@@ -56,6 +59,8 @@ public class StartScreenActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         setContentView(R.layout.startscreen);
 
@@ -127,8 +132,25 @@ public class StartScreenActivity extends Activity {
             .addOnSuccessListener(new OnSuccessListener<Intent>() {
                 @Override
                 public void onSuccess(Intent intent) {
+
+                    Bundle bundle = new Bundle();
+                    mFirebaseAnalytics.logEvent("show_leaderboard", bundle);
+
                     startActivityForResult(intent, RC_LEADERBOARD_UI);
                 }
             });
+    }
+
+    public void onActivityResult(int requestCode, int responseCode, Intent intent) {
+        boolean userLoggedOut = (responseCode == GamesActivityResultCodes.RESULT_RECONNECT_REQUIRED) && (requestCode == RC_LEADERBOARD_UI);
+        if (userLoggedOut) {
+
+            Bundle bundle = new Bundle();
+            mFirebaseAnalytics.logEvent("logout", bundle);
+
+            Intent i = new Intent(this, SignInActivity.class);
+            startActivity(i);
+            finish();
+        }
     }
 }

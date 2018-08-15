@@ -20,15 +20,19 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class SignInActivity extends Activity {
 
     private int RC_SIGN_IN = 13123235;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         if (isSignedIn())
             spawnStartScreenActivity(GoogleSignIn.getLastSignedInAccount(this));
@@ -42,6 +46,7 @@ public class SignInActivity extends Activity {
         Intent i = new Intent(this, StartScreenActivity.class);
         i.putExtra("account", account);
         startActivity(i);
+        finish();
     }
 
     private boolean isSignedIn() {
@@ -63,13 +68,16 @@ public class SignInActivity extends Activity {
                 // The signed in account is stored in the result.
                 GoogleSignInAccount signedInAccount = result.getSignInAccount();
                 spawnStartScreenActivity(signedInAccount);
+
+                Bundle bundle = new Bundle();
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle);
             } else {
                 String message = result.getStatus().getStatusMessage();
-                if (message == null || message.isEmpty()) {
-                    Log.d(GameActivity.DEBUG, "failed to signin..");
-                    message = "something went wrong..";
-                }
-                new AlertDialog.Builder(this).setMessage(message).setNeutralButton(android.R.string.ok, null).show();
+                Bundle bundle = new Bundle();
+                bundle.putString("message", message);
+                mFirebaseAnalytics.logEvent("sign_in_failed", bundle);
+
+                finish();
             }
         }
     }
