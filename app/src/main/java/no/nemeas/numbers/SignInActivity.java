@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -16,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.games.Games;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -25,6 +27,7 @@ public class SignInActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
 
         if (isSignedIn())
@@ -78,8 +81,14 @@ public class SignInActivity extends Activity {
     }
 
     private void signInSilently() {
-        GoogleSignInClient signInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN);
-        signInClient.silentSignIn().addOnCompleteListener(this,
+
+        GoogleSignInOptions gso = new GoogleSignInOptions
+            .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestScopes(Games.SCOPE_GAMES_LITE)
+            .requestEmail()
+            .build();
+
+        GoogleSignIn.getClient(this, gso).silentSignIn().addOnCompleteListener(this,
             new OnCompleteListener<GoogleSignInAccount>() {
                 @Override
                 public void onComplete(@NonNull Task<GoogleSignInAccount> task) {
@@ -94,6 +103,7 @@ public class SignInActivity extends Activity {
                         }
                     }
                 }
-            });
+            }
+        );
     }
 }
