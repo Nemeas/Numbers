@@ -48,7 +48,8 @@ public class Timer {
         this.paused = true;
         this.stopped = false;
 
-        this.timer.cancel();
+        if (this.timer != null)
+            this.timer.cancel();
     }
 
     public void resume() {

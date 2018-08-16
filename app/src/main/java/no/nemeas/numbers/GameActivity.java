@@ -52,6 +52,7 @@ public class GameActivity extends Activity {
     private Timer timer = new Timer(this);
     private boolean stageComplete = false;
     private FirebaseAnalytics mFirebaseAnalytics;
+    private boolean doNothing = false;
 
     public static final String DEBUG = "DeBuG";
 
@@ -307,9 +308,12 @@ public class GameActivity extends Activity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                showBoard();
-                showTimer();
-                ((GameActivity)getActivity()).timer.start();
+                GameActivity g = (GameActivity)getActivity();
+                if (!g.doNothing) {
+                    showBoard();
+                    showTimer();
+                    g.timer.start();
+                }
             }
         }, Settings.DURATION_OF_COUNTDOWN_IN_MILLI_SECS);
     }
@@ -328,6 +332,12 @@ public class GameActivity extends Activity {
         RelativeLayout board = (RelativeLayout) findViewById(R.id.board);
         board.setVisibility(View.INVISIBLE);
         Log.d(DEBUG, "hideBoard");
+    }
+
+    @Override
+    public void onBackPressed() {
+        this.doNothing = true;
+        finish();
     }
 
     private void showCountDown() {
