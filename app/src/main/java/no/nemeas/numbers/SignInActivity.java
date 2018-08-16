@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -74,10 +75,9 @@ public class SignInActivity extends Activity {
             } else {
                 String message = result.getStatus().getStatusMessage();
                 Bundle bundle = new Bundle();
-                bundle.putString("message", message);
+                bundle.putString("message", message == null ? result.getStatus().toString() : message);
                 mFirebaseAnalytics.logEvent("sign_in_failed", bundle);
-
-                finish();
+                Toast.makeText(this, "Login failed.. " + result.getStatus().toString(), Toast.LENGTH_LONG);
             }
         }
     }
