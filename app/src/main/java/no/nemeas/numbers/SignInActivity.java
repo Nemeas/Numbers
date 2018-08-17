@@ -77,7 +77,7 @@ public class SignInActivity extends Activity {
                 Bundle bundle = new Bundle();
                 bundle.putString("message", message == null ? result.getStatus().toString() : message);
                 mFirebaseAnalytics.logEvent("sign_in_failed", bundle);
-                Toast.makeText(this, "Login failed.. " + result.getStatus().toString(), Toast.LENGTH_LONG);
+                Toast.makeText(this, "Login failed.. " + result.getStatus().toString(), Toast.LENGTH_LONG).show();
             }
         }
     }
