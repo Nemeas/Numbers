@@ -1,12 +1,9 @@
 package no.nemeas.numbers;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -37,8 +34,6 @@ public class SignInActivity extends Activity {
 
         if (isSignedIn())
             spawnStartScreenActivity(GoogleSignIn.getLastSignedInAccount(this));
-        else
-            startSignInIntent();
 
         setContentView(R.layout.sign_in);
     }
@@ -83,20 +78,26 @@ public class SignInActivity extends Activity {
     }
 
     private void startSignInIntent() {
-        GoogleSignInClient signInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN);
+        GoogleSignInClient signInClient = getSignInClient();
         Intent intent = signInClient.getSignInIntent();
         startActivityForResult(intent, RC_SIGN_IN);
     }
 
-    private void signInSilently() {
-
-        GoogleSignInOptions gso = new GoogleSignInOptions
-            .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+    private GoogleSignInOptions getGso() {
+        return new GoogleSignInOptions
+            .Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
             .requestScopes(Games.SCOPE_GAMES_LITE)
             .requestEmail()
             .build();
+    }
 
-        GoogleSignIn.getClient(this, gso).silentSignIn().addOnCompleteListener(this,
+    private GoogleSignInClient getSignInClient() {
+        return GoogleSignIn.getClient(this, getGso());
+    }
+
+    private void signInSilently() {
+
+        getSignInClient().silentSignIn().addOnCompleteListener(this,
             new OnCompleteListener<GoogleSignInAccount>() {
                 @Override
                 public void onComplete(@NonNull Task<GoogleSignInAccount> task) {
