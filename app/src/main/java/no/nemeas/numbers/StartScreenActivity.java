@@ -129,7 +129,7 @@ public class StartScreenActivity extends Activity {
     }
 
     private void showLeaderboard() {
-        Games.getLeaderboardsClient(this, GoogleSignIn.getLastSignedInAccount(this))
+        Games.getLeaderboardsClient(this, GoogleSignIn.getLastSignedInAccount(getThis()))
             .getLeaderboardIntent(getString(R.string.leaderboard_highscore))
             .addOnSuccessListener(new OnSuccessListener<Intent>() {
                 @Override
