@@ -60,6 +60,8 @@ public class StartScreenActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
 
+        Log.d(GameActivity.DEBUG, "StartScreenActivity.onCreate");
+
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         setContentView(R.layout.startscreen);
@@ -135,6 +137,8 @@ public class StartScreenActivity extends Activity {
 
                     Bundle bundle = new Bundle();
                     mFirebaseAnalytics.logEvent("show_leaderboard", bundle);
+
+                    Log.d(GameActivity.DEBUG, "show_leaderboard");
 
                     startActivityForResult(intent, RC_LEADERBOARD_UI);
                 }
