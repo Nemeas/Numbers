@@ -85,7 +85,7 @@ public class SignInActivity extends Activity {
 
     private GoogleSignInOptions getGso() {
         return new GoogleSignInOptions
-            .Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
+            .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestScopes(Games.SCOPE_GAMES_LITE)
             .requestEmail()
             .build();
