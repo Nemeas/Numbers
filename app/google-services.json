@@ -23,6 +23,22 @@
           }
         },
         {
+          "client_id": "1054256684029-prmflt1huakhskuuedms9qljhcb1nf88.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "no.nemeas.numbers",
+            "certificate_hash": "15cbd53e66a6c88184372216afcfc11f137bfcd2"
+          }
+        },
+        {
+          "client_id": "1054256684029-c5d7kshn6bq62lcnci6v4c04ng02lui5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "no.nemeas.numbers",
+            "certificate_hash": "6f89ae8fff8be918a3dd3c2fd40e146b00879704"
+          }
+        },
+        {
           "client_id": "1054256684029-n2oigv3bdgs0e0ro15f3ocev2up78kto.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -48,7 +64,8 @@
         "ads_service": {
           "status": 2
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-8731827103414918~6135545007"
     }
   ],
   "configuration_version": "1"
