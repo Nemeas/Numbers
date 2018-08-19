@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -36,6 +38,14 @@ public class SignInActivity extends Activity {
             spawnStartScreenActivity(GoogleSignIn.getLastSignedInAccount(this));
 
         setContentView(R.layout.sign_in);
+
+        ((ImageView)findViewById(R.id.splash)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startSignInIntent();
+            }
+        });
+
     }
 
     private void spawnStartScreenActivity(GoogleSignInAccount account) {
