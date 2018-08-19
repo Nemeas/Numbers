@@ -148,8 +148,6 @@ public class StartScreenActivity extends Activity {
             Bundle bundle = new Bundle();
             mFirebaseAnalytics.logEvent("logout", bundle);
 
-            Intent i = new Intent(this, SignInActivity.class);
-            startActivity(i);
             finish();
         }
     }
