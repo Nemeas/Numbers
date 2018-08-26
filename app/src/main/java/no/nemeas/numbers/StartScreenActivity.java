@@ -145,9 +145,15 @@ public class StartScreenActivity extends Activity {
             });
     }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
     public void onActivityResult(int requestCode, int responseCode, Intent intent) {
         boolean userLoggedOut = (responseCode == GamesActivityResultCodes.RESULT_RECONNECT_REQUIRED) && (requestCode == RC_LEADERBOARD_UI);
-        if (userLoggedOut) {
+
+        if (userLoggedOut && GoogleSignIn.getLastSignedInAccount(this) == null) {
 
             Bundle bundle = new Bundle();
             mFirebaseAnalytics.logEvent("logout", bundle);
