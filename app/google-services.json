@@ -15,7 +15,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "1054256684029-ao3qeon5dbc3t539iefqcq5ggafaq90b.apps.googleusercontent.com",
+          "client_id": "1054256684029-fk3lmtdnikmst6klpmuvb0ofltc0enns.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "no.nemeas.numbers",
@@ -23,7 +23,7 @@
           }
         },
         {
-          "client_id": "1054256684029-prmflt1huakhskuuedms9qljhcb1nf88.apps.googleusercontent.com",
+          "client_id": "1054256684029-piaaftd0tbrnk9l0kkjoa2rnb9pstfgl.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "no.nemeas.numbers",
@@ -31,7 +31,7 @@
           }
         },
         {
-          "client_id": "1054256684029-c5d7kshn6bq62lcnci6v4c04ng02lui5.apps.googleusercontent.com",
+          "client_id": "1054256684029-p8ll5onk0i3k9sc1i8li4vu7m9j2p8nu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "no.nemeas.numbers",
@@ -39,13 +39,13 @@
           }
         },
         {
-          "client_id": "1054256684029-n2oigv3bdgs0e0ro15f3ocev2up78kto.apps.googleusercontent.com",
+          "client_id": "1054256684029-rip75q8nqf2mvcukvfdvpgos1ke6shv6.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAxfHHdmT78unU6aLSw3H1prb8SHctgQUs"
+          "current_key": "AIzaSyA0DeyvDRcReieyjRyJZpOh2twJ8NbGl5M"
         }
       ],
       "services": {
@@ -56,7 +56,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "1054256684029-n2oigv3bdgs0e0ro15f3ocev2up78kto.apps.googleusercontent.com",
+              "client_id": "1054256684029-rip75q8nqf2mvcukvfdvpgos1ke6shv6.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
