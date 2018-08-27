@@ -11,6 +11,7 @@ public class Settings {
     public static final int BUTTON_MARGIN = 20;
     public static final int GAME_RELATIVE_MARGIN = 4;
     public static final int LVL_CAP = 20;
+    public static final String DEBUG = "DeBuG";
 
     public static final int[] colorPalette = new int [] {
             Color.rgb(186, 59, 97),

@@ -1,5 +1,6 @@
 package no.nemeas.numbers;
 
+import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -11,14 +12,25 @@ import com.google.android.gms.ads.MobileAds;
 public class Ad {
     private InterstitialAd mInterstitialAd;
 
-    private final GameActivity context;
+    private final Context context;
+    private Listener mListener;
 
-    public Ad(GameActivity context) {
+    public Ad(Context context) {
         this.context = context;
 
         MobileAds.initialize(context, "ca-app-pub-8731827103414918~6135545007");
 
         loadNewAd();
+    }
+
+    public Ad setListener(Listener listener) {
+        this.mListener = listener;
+        return this;
+    }
+
+    interface Listener {
+        void OnAdClosed();
+        void OnAdFailToLoad();
     }
 
     public void loadNewAd() {
@@ -33,21 +45,22 @@ public class Ad {
         interstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdLoaded() {
-                Log.d(GameActivity.DEBUG, "Loaded");
+                Log.d(Settings.DEBUG, "Loaded");
                 //mNextLevelButton.setEnabled(true);
             }
 
             @Override
             public void onAdFailedToLoad(int errorCode) {
-                Log.d(GameActivity.DEBUG, "failed to load");
+                Log.d(Settings.DEBUG, "failed to load");
                 //mNextLevelButton.setEnabled(true);
+                mListener.OnAdFailToLoad();
             }
 
             @Override
             public void onAdClosed() {
                 // Proceed to the next level.
-                Log.d(GameActivity.DEBUG, "ad closed");
-                context.nextStage();
+                Log.d(Settings.DEBUG, "ad closed");
+                mListener.OnAdClosed();
             }
         });
         return interstitialAd;
@@ -66,7 +79,7 @@ public class Ad {
             mInterstitialAd.show();
         } else {
             Toast.makeText(context, "Ad did not load", Toast.LENGTH_SHORT).show();
-            context.nextStage();
+            mListener.OnAdFailToLoad();
         }
     }
 }

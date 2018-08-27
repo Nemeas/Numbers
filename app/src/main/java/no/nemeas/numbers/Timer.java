@@ -1,27 +1,36 @@
 package no.nemeas.numbers;
 
 import android.os.CountDownTimer;
-import android.util.Log;
-
 
 public class Timer {
     public boolean started = false;
     public boolean paused = false;
     public boolean stopped = false;
 
-    private long timeRemaining = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
+    private long timeRemaining;
+    private long duration;
 
     private CountDownTimer timer;
 
-    private GameActivity gameActivity;
+    private Listener mListener;
 
-    public Timer(GameActivity ga) {
-        this.gameActivity = ga;
+    interface Listener {
+        void onTimerUpdate(long millisUntilFinished);
+        void onTimerFinished();
+    }
+
+    public Timer setListener(Listener listener) {
+        mListener = listener;
+        return this;
+    }
+
+    public Timer setDuration(long durationInMillis) {
+        this.duration = durationInMillis;
+        this.timeRemaining = durationInMillis;
+        return this;
     }
 
     public void start() {
-        Log.d(GameActivity.DEBUG, "timer.start()");
-
         this.started = true;
         this.stopped = false;
         this.paused = false;
@@ -29,18 +38,16 @@ public class Timer {
 
             public void onTick(long millisUntilFinished) {
                 timeRemaining = millisUntilFinished;
-                gameActivity.onTimerUpdate(millisUntilFinished);
+                mListener.onTimerUpdate(millisUntilFinished);
             }
 
             public void onFinish() {
-                gameActivity.onTimerFinished();
+                mListener.onTimerFinished();
             }
         }.start();
     }
 
     public void pause() {
-        Log.d(GameActivity.DEBUG, "timer.pause()");
-
         if (stopped)
             return;
 
@@ -53,8 +60,6 @@ public class Timer {
     }
 
     public void resume() {
-        Log.d(GameActivity.DEBUG, "timer.resume()");
-
         if(stopped)
             return;
 
@@ -62,13 +67,11 @@ public class Timer {
     }
 
     public void stop() {
-        Log.d(GameActivity.DEBUG, "timer.stop()");
-
         this.paused = false;
         this.started = false;
         this.stopped = true;
 
-        this.timeRemaining = Settings.DURATION_OF_LVL_IN_MILLI_SECS;
+        this.timeRemaining = duration;
         this.timer.cancel();
     }
 }

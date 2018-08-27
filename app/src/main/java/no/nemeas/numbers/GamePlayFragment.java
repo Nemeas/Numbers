@@ -1,31 +1,21 @@
 package no.nemeas.numbers;
 
 import android.animation.ValueAnimator;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.Display;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.games.Games;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.ArrayList;
 
@@ -44,48 +34,95 @@ import java.util.ArrayList;
 
 // needs to increase difficulty based on lvl.
 
-public class GameActivity extends Activity {
+public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Listener {
 
     private Ad ad;
     private GameState state = new GameState();
-    private TextView textTimer;
-    private Timer timer = new Timer(this);
+    private Timer timer = new Timer().setDuration(Settings.DURATION_OF_LVL_IN_MILLI_SECS).setListener(this);
+    private int width;
+    private int height;
+
+    // State
     private boolean stageComplete = false;
-    private FirebaseAnalytics mFirebaseAnalytics;
     private boolean doNothing = false;
 
-    public static final String DEBUG = "DeBuG";
+    // Views
+    private TextView mTextTimer;
+    private TextView mScore;
+    private TextView mReadyText;
+    private TextView mSetText;
+    private TextView mGoText;
+    private RelativeLayout mBoard;
+    private ImageView mThumbsUp;
+    private ImageView mThumbsDown;
+
+    private View mView;
+
+    // Listeners
+    private Listener mListener;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
-        setContentView(R.layout.activity_game);
-
-        state.lvl = getIntent().getIntExtra("lvl", 1);
-
-        Bundle bundle = new Bundle();
-        bundle.putString("start_game_lvl", state.lvl + "");
-        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.LEVEL_START, bundle);
-
-        textTimer = (TextView)findViewById(R.id.textTimer);
-
-        ad = new Ad(this);
-
-        setupGamePremise();
-
+    public void OnAdClosed() {
         nextStage();
     }
 
     @Override
-    protected void onPause() {
+    public void OnAdFailToLoad() {
+        nextStage();
+    }
+
+    interface Listener {
+        void onNewHighScore(int score);
+        void onBack();
+    }
+
+    public GamePlayFragment setListener(Listener listener) {
+        mListener = listener;
+        return this;
+    }
+
+    public GamePlayFragment setScreenSize(Point point) {
+        this.height = point.y;
+        this.width = point.x;
+        return this;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        mView = inflater.inflate(R.layout.activity_game, container, false);
+
+        // cache views
+        mTextTimer = mView.findViewById(R.id.textTimer);
+        mBoard = mView.findViewById(R.id.board);
+        mReadyText = mView.findViewById(R.id.readyText);
+        mSetText = mView.findViewById(R.id.setText);
+        mGoText = mView.findViewById(R.id.goText);
+        mThumbsDown = mView.findViewById(R.id.thumbsDown);
+        mThumbsUp = mView.findViewById(R.id.thumbsUp);
+        mScore = mView.findViewById(R.id.score);
+
+        ad = new Ad(mView.getContext()).setListener(this);
+        nextStage();
+
+        return mView;
+    }
+
+    @Override
+    public void onPause() {
         super.onPause();
         this.timer.pause();
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
 
         if(this.stageComplete)
@@ -95,45 +132,32 @@ public class GameActivity extends Activity {
             this.timer.resume();
     }
 
-    private void setupGamePremise() {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//Set Portrait
-    }
-
-    private void saveNewHighscore(int score) {
-        Games.getLeaderboardsClient(this, GoogleSignIn.getLastSignedInAccount(this))
-            .submitScore(getString(R.string.leaderboard_highscore), score);
-    }
-
     private void setupNewRound() {
-        Log.d(DEBUG, "setupNewRound");
-
         state.newRound();
 
         ArrayList<Button> buttons = new ArrayList<>();
 
         for (final int number : state.getRoundNumbers()) {
-            Button b = new Button(this);
+            Button b = new Button(mView.getContext());
             b.setBackgroundColor(Utils.getRandomBackgroundColor());
             b.setText(number + "");
             b.setId(number);
 
             b.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
+                if (state.state == StateEnum.timeout) return;
 
-                    if (state.state == StateEnum.timeout) return;
+                // Perform action on click
+                Button b = mView.findViewById(number);
+                if (state.isCorrect(number)) {
+                    b.setBackgroundColor(Color.GREEN);
+                    state.removeNumber(number);
+                } else {
+                    b.setBackgroundColor(Color.RED);
+                    setGameStateRoundFailed();
+                }
 
-                    // Perform action on click
-                    Button b = (Button) findViewById(number);
-                    if (state.isCorrect(number)) {
-                        b.setBackgroundColor(Color.GREEN);
-                        state.removeNumber(number);
-                    } else {
-                        b.setBackgroundColor(Color.RED);
-                        setGameStateRoundFailed();
-                    }
-
-                    if (state.isRoundComplete()) setGameStateRoundComplete();
+                if (state.isRoundComplete()) setGameStateRoundComplete();
                 }
             });
             buttons.add(b);
@@ -141,23 +165,14 @@ public class GameActivity extends Activity {
 
         positionButtons(buttons);
 
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.board);
-
-        relativeLayout.removeAllViewsInLayout();
+        mBoard.removeAllViewsInLayout();
 
         for (Button button : buttons) {
-            relativeLayout.addView(button);
+            mBoard.addView(button);
         }
     }
 
     private void positionButtons(ArrayList<Button> buttons) {
-        Display display = getWindowManager().getDefaultDisplay();
-        Point point = new Point();
-
-        display.getSize(point);
-        int width = point.x;
-        int height = point.y;
-
         int buttonSize = width / Settings.BUTTON_RELATIVE_SIZE;
 
         int centeringMarginWidth = width / Settings.GAME_RELATIVE_MARGIN;
@@ -186,19 +201,23 @@ public class GameActivity extends Activity {
     private void setGameStateRoundComplete() {
         state.completeRound();
 
+        updateScore();
+
         showThumbsUp();
 
         setupNewRound();
     }
 
+    private void updateScore() {
+        mScore.setText((state.completedRounds - state.failedRounds) + "");
+    }
+
     private void showThumbsUp() {
-        final ImageView thumbsUp = (ImageView) findViewById(R.id.thumbsUp);
-        animateImage(thumbsUp, Settings.SUCCESS_IMAGE_DURATION);
+        animateImage(mThumbsUp, Settings.SUCCESS_IMAGE_DURATION);
     }
 
     private void showThumbsDown() {
-        final ImageView thumbsDown = (ImageView) findViewById(R.id.thumbsDown);
-        animateImage(thumbsDown, Settings.FAILURE_IMAGE_DURATION);
+        animateImage(mThumbsDown, Settings.FAILURE_IMAGE_DURATION);
     }
 
     private void animateImage(final ImageView image, int duration) {
@@ -216,44 +235,40 @@ public class GameActivity extends Activity {
     }
 
     private void setGameStateTimeOut() {
-        Log.d(DEBUG, "setGameStateTimeOut");
-
         state.timeOut();
         timer.stop();
         this.stageComplete = true;
-        saveNewHighscore(state.completedRounds - state.failedRounds);
+        mScore.setText("");
+        this.mListener.onNewHighScore(state.completedRounds - state.failedRounds);
         showNextStageDialog();
     }
 
     private void showNextStageDialog() {
-        Log.d(DEBUG, "showNextStageDialog");
+        // 1. Instantiate an AlertDialog.Builder with its constructor
+        AlertDialog.Builder builder = new AlertDialog.Builder(mView.getContext());
 
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // 1. Instantiate an AlertDialog.Builder with its constructor
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        // 2. Chain together various setter methods to set the dialog characteristics
+        String title = getCompleteTitle(state.completedRounds - state.failedRounds);
+        builder.setMessage("Score: " + (state.completedRounds - state.failedRounds)).setTitle(title);
 
-                // 2. Chain together various setter methods to set the dialog characteristics
-                String title = getCompleteTitle(state.completedRounds - state.failedRounds);
-                builder.setMessage("Awsomeness: " + state.completedRounds + "\nFails: " + state.failedRounds).setTitle(title);
-
-                builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        Log.d(DEBUG, "showNextStageDialog.Continue");
-                        // User clicked OK button
-                        ad.showAd();
-                    }
-                });
-
-                builder.setCancelable(false);
-
-                // 3. Get the AlertDialog from create()
-                AlertDialog dialog = builder.create();
-
-                dialog.show();
+        builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                ad.showAd();
             }
         });
+        builder.setNegativeButton("Back", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mListener.onBack();
+            }
+        });
+
+        builder.setCancelable(false);
+
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+
+        dialog.show();
     }
 
     private String getCompleteTitle(int score) {
@@ -274,19 +289,14 @@ public class GameActivity extends Activity {
         return "Try again later..";
     }
 
-    private Context getActivity() {
-        return this;
-    }
-
     private void setGameStateRoundFailed() {
         state.failRound();
+        updateScore();
         showThumbsDown();
         setupNewRound();
-        // TODO - implement timing of each round?
     }
 
     public void nextStage() {
-        Log.d(DEBUG, "nextStage");
 
         this.stageComplete = false;
 
@@ -308,51 +318,34 @@ public class GameActivity extends Activity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                GameActivity g = (GameActivity)getActivity();
-                if (!g.doNothing) {
+                if (!doNothing) {
                     showBoard();
+                    updateScore();
                     showTimer();
-                    g.timer.start();
+                    timer.start();
                 }
             }
         }, Settings.DURATION_OF_COUNTDOWN_IN_MILLI_SECS);
     }
 
     private void hideTimer() {
-        textTimer.setVisibility(View.INVISIBLE);
-        Log.d(DEBUG, "hideTimer");
+        mTextTimer.setVisibility(View.INVISIBLE);
     }
 
     private void showTimer() {
-        textTimer.setVisibility(View.VISIBLE);
-        Log.d(DEBUG, "showTimer");
+        mTextTimer.setVisibility(View.VISIBLE);
     }
 
     private void hideBoard() {
-        RelativeLayout board = (RelativeLayout) findViewById(R.id.board);
-        board.setVisibility(View.INVISIBLE);
-        Log.d(DEBUG, "hideBoard");
-    }
-
-    @Override
-    public void onBackPressed() {
-        this.doNothing = true;
-        finish();
+        mBoard.setVisibility(View.INVISIBLE);
     }
 
     private void showCountDown() {
-        Log.d(DEBUG, "showCountDown");
-
         int duration = Settings.DURATION_OF_COUNTDOWN_IN_MILLI_SECS / 3;
 
-        TextView readyText = (TextView) findViewById(R.id.readyText);
-        animateTextView(readyText, duration * 0, duration);
-
-        TextView setText = (TextView) findViewById(R.id.setText);
-        animateTextView (setText, duration * 1, duration);
-
-        TextView goText = (TextView) findViewById(R.id.goText);
-        animateTextView(goText, duration * 2, duration);
+        animateTextView(mReadyText, 0, duration);
+        animateTextView(mSetText, duration, duration);
+        animateTextView(mGoText, duration * 2, duration);
     }
 
     private void animateTextView(final TextView view, long delay, long duration) {
@@ -374,20 +367,18 @@ public class GameActivity extends Activity {
     }
 
     private void showBoard() {
-        Log.d(DEBUG, "showBoard");
-
-        RelativeLayout board = (RelativeLayout) findViewById(R.id.board);
-        board.setVisibility(View.VISIBLE);
+        mBoard.setVisibility(View.VISIBLE);
     }
 
+    @Override
     public void onTimerUpdate(long millisRemaining) {
         long secs = millisRemaining / 1000;
-        textTimer.setText("" + (secs / 60) + ":" + Utils.formatSecs(secs % 60));
+        mTextTimer.setText("" + (secs / 60) + ":" + Utils.formatSecs(secs % 60));
     }
 
+    @Override
     public void onTimerFinished() {
-        Log.d(DEBUG, "onTimerFinished");
-        textTimer.setText("0:00");
+        mTextTimer.setText("0:00");
         setGameStateTimeOut();
     }
 }
