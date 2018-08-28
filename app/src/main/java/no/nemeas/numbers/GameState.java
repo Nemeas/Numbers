@@ -4,26 +4,25 @@ import android.util.Log;
 
 public class GameState {
     public StateEnum state = StateEnum.initial;
-    public int completedRounds = 0;
-    public int failedRounds = 0;
+    public int score = 0;
     public int lvl = 1;
     private int[] numbers;
 
     public void completeRound() {
         state = StateEnum.stageComplete;
         Log.d("a", "complete");
-        completedRounds++;
+        score++;
     }
 
     public void failRound() {
         state = StateEnum.stageFailed;
         Log.d("a", "fail");
-        failedRounds++;
+        if (score > 0)
+            score--;
     }
 
     public void timeOut() {
         state = StateEnum.timeout;
-        Log.d("a", "timeout \nwins:" + completedRounds + "\nlosses: " + failedRounds);
     }
 
     public void newRound() {
@@ -32,11 +31,10 @@ public class GameState {
 
     public void nextStage() {
         state = StateEnum.initial;
-        if (completedRounds > Settings.LVL_CAP) {
-            ++lvl;
+        if (score > Settings.LVL_CAP) {
+            lvl++;
         }
-        completedRounds = 0;
-        failedRounds = 0;
+        score = 0;
     }
 
     public int[] getRoundNumbers() {
@@ -74,7 +72,7 @@ public class GameState {
     }
 
     private int[] getNumbers() {
-        Setup setup = DifficultyManager.getSetup(completedRounds, failedRounds, lvl);
+        Setup setup = DifficultyManager.getSetup(score, lvl);
 
         int[] list = new int[setup.n];
         for(int i = 0 ; i < setup.n; i++) {

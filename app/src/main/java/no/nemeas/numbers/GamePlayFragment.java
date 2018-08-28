@@ -209,7 +209,7 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
     }
 
     private void updateScore() {
-        mScore.setText((state.completedRounds - state.failedRounds) + "");
+        mScore.setText((state.score) + "");
     }
 
     private void showThumbsUp() {
@@ -239,7 +239,7 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
         timer.stop();
         this.stageComplete = true;
         mScore.setText("");
-        this.mListener.onNewHighScore(state.completedRounds - state.failedRounds);
+        this.mListener.onNewHighScore(state.score);
         showNextStageDialog();
     }
 
@@ -248,8 +248,8 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
         AlertDialog.Builder builder = new AlertDialog.Builder(mView.getContext());
 
         // 2. Chain together various setter methods to set the dialog characteristics
-        String title = getCompleteTitle(state.completedRounds - state.failedRounds);
-        builder.setMessage("Score: " + (state.completedRounds - state.failedRounds)).setTitle(title);
+        String title = getCompleteTitle(state.score);
+        builder.setMessage("Score: " + (state.score)).setTitle(title);
 
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
