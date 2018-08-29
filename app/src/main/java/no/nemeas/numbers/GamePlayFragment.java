@@ -43,7 +43,7 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
     private int height;
     private final int CONTINUE = 1;
     private final int BACK = 2;
-    private Handler mHandler;
+    private Handler mHandler = new Handler();
 
     // Views
     private TextView mTextTimer;
@@ -308,8 +308,6 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
         hideTimer();
 
         showCountDown();
-
-        mHandler = new Handler();
 
         mHandler.postDelayed(new Runnable() {
             @Override
