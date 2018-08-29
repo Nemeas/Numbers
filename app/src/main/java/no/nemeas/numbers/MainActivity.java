@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -75,18 +74,7 @@ public class MainActivity extends FragmentActivity implements
         mGamePlayFragment = new GamePlayFragment().setListener(this).setScreenSize(point);
         mStartScreenFragment = new StartScreenFragment().setListener(this);
 
-        // Set the listeners and callbacks of fragment events.
-
-        // Add initial Main Menu fragment.
-        // IMPORTANT: if this Activity supported rotation, we'd have to be
-        // more careful about adding the fragment, since the fragment would
-        // already be there after rotation and trying to add it again would
-        // result in overlapping fragments. But since we don't support rotation,
-        // we don't deal with that for code simplicity.
-        // getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,
-        //        mMainMenuFragment).commit();
         switchToFragment(mStartScreenFragment);
-
     }
 
     private boolean isSignedIn() {
@@ -109,6 +97,17 @@ public class MainActivity extends FragmentActivity implements
         if (mOutbox.mScore < finalScore) {
             mOutbox.mScore = finalScore;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mGamePlayFragment.isVisible()) {
+            // mGamePlayFragment.stop();
+            switchToFragment(mStartScreenFragment);
+            signInSilently();
+            return;
+        }
+        finish();
     }
 
     @Override
@@ -202,7 +201,7 @@ public class MainActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onBack() {
+    public void onGamePlayBackPressed() {
         switchToFragment(mStartScreenFragment);
         signInSilently();
     }

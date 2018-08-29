@@ -30,10 +30,7 @@ public class Timer {
         return this;
     }
 
-    public void start() {
-        this.started = true;
-        this.stopped = false;
-        this.paused = false;
+    public void initialize() {
         timer = new CountDownTimer(timeRemaining, 1000) {
 
             public void onTick(long millisUntilFinished) {
@@ -44,7 +41,16 @@ public class Timer {
             public void onFinish() {
                 mListener.onTimerFinished();
             }
-        }.start();
+        };
+    }
+
+    public void start() {
+        this.started = true;
+        this.stopped = false;
+        this.paused = false;
+        if (timer == null)
+            initialize();
+        timer.start();
     }
 
     public void pause() {
@@ -72,6 +78,7 @@ public class Timer {
         this.stopped = true;
 
         this.timeRemaining = duration;
-        this.timer.cancel();
+        if (this.timer != null)
+            this.timer.cancel();
     }
 }

@@ -41,10 +41,9 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
     private Timer timer = new Timer().setDuration(Settings.DURATION_OF_LVL_IN_MILLI_SECS).setListener(this);
     private int width;
     private int height;
-
-    // State
-    private boolean stageComplete = false;
-    private boolean doNothing = false;
+    private final int CONTINUE = 1;
+    private final int BACK = 2;
+    private Handler mHandler;
 
     // Views
     private TextView mTextTimer;
@@ -62,18 +61,24 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
     private Listener mListener;
 
     @Override
-    public void OnAdClosed() {
-        nextStage();
+    public void OnAdClosed(int code) {
+        if (code == CONTINUE)
+            nextStage();
+        else
+            mListener.onGamePlayBackPressed();
     }
 
     @Override
-    public void OnAdFailToLoad() {
-        nextStage();
+    public void OnAdFailToLoad(int code) {
+        if (code == CONTINUE)
+            nextStage();
+        else
+            mListener.onGamePlayBackPressed();
     }
 
     interface Listener {
         void onNewHighScore(int score);
-        void onBack();
+        void onGamePlayBackPressed();
     }
 
     public GamePlayFragment setListener(Listener listener) {
@@ -85,11 +90,6 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
         this.height = point.y;
         this.width = point.x;
         return this;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -110,7 +110,6 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
         mScore = mView.findViewById(R.id.score);
 
         ad = new Ad(mView.getContext()).setListener(this);
-        nextStage();
 
         return mView;
     }
@@ -118,18 +117,14 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
     @Override
     public void onPause() {
         super.onPause();
-        this.timer.pause();
+        this.timer.stop(); // because we no longer support pausing the game
+        mHandler.removeCallbacksAndMessages(null);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        if(this.stageComplete)
-            return;
-
-        if(this.timer.paused)
-            this.timer.resume();
+        nextStage();
     }
 
     private void setupNewRound() {
@@ -237,7 +232,6 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
     private void setGameStateTimeOut() {
         state.timeOut();
         timer.stop();
-        this.stageComplete = true;
         mScore.setText("");
         this.mListener.onNewHighScore(state.score);
         showNextStageDialog();
@@ -253,13 +247,14 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
 
         builder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                ad.showAd();
+                ad.showAd(CONTINUE);
             }
         });
         builder.setNegativeButton("Back", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                mListener.onBack();
+                ad.showAd(BACK);
+                mListener.onGamePlayBackPressed();
             }
         });
 
@@ -298,13 +293,13 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
 
     public void nextStage() {
 
-        this.stageComplete = false;
-
         // prepare for the next stage
         ad.loadNewAd();
 
         // to other stuff as well
         state.nextStage();
+
+        timer.initialize();
 
         hideBoard();
 
@@ -314,16 +309,15 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
 
         showCountDown();
 
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        mHandler = new Handler();
+
+        mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (!doNothing) {
-                    showBoard();
-                    updateScore();
-                    showTimer();
-                    timer.start();
-                }
+                showBoard();
+                updateScore();
+                showTimer();
+                timer.start();
             }
         }, Settings.DURATION_OF_COUNTDOWN_IN_MILLI_SECS);
     }

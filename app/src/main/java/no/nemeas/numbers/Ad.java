@@ -14,6 +14,7 @@ public class Ad {
 
     private final Context context;
     private Listener mListener;
+    private int mCode;
 
     public Ad(Context context) {
         this.context = context;
@@ -29,8 +30,8 @@ public class Ad {
     }
 
     interface Listener {
-        void OnAdClosed();
-        void OnAdFailToLoad();
+        void OnAdClosed(int code);
+        void OnAdFailToLoad(int code);
     }
 
     public void loadNewAd() {
@@ -53,14 +54,14 @@ public class Ad {
             public void onAdFailedToLoad(int errorCode) {
                 Log.d(Settings.DEBUG, "failed to load");
                 //mNextLevelButton.setEnabled(true);
-                mListener.OnAdFailToLoad();
+                mListener.OnAdFailToLoad(mCode);
             }
 
             @Override
             public void onAdClosed() {
                 // Proceed to the next level.
                 Log.d(Settings.DEBUG, "ad closed");
-                mListener.OnAdClosed();
+                mListener.OnAdClosed(mCode);
             }
         });
         return interstitialAd;
@@ -73,13 +74,14 @@ public class Ad {
         mInterstitialAd.loadAd(adRequest);
     }
 
-    public void showAd() {
+    public void showAd(int code) {
         // Show the ad if it's ready. Otherwise toast and reload the ad.
+        this.mCode = code;
         if (mInterstitialAd != null && mInterstitialAd.isLoaded()) {
             mInterstitialAd.show();
         } else {
             Toast.makeText(context, "Ad did not load", Toast.LENGTH_SHORT).show();
-            mListener.OnAdFailToLoad();
+            mListener.OnAdFailToLoad(code);
         }
     }
 }
