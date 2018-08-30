@@ -1,4 +1,4 @@
-package no.nemeas.numbers;
+package no.nemeas.numbers.helpers;
 
 public class DifficultyManager {
     public static Setup getSetup(int score, int lvl) {

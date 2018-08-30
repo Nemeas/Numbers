@@ -1,12 +1,10 @@
 package no.nemeas.numbers;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
@@ -30,6 +28,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
+
+import no.nemeas.numbers.fragments.GamePlayFragment;
+import no.nemeas.numbers.fragments.StartScreenFragment;
 
 public class MainActivity extends FragmentActivity implements
         GamePlayFragment.Listener,
@@ -190,7 +191,7 @@ public class MainActivity extends FragmentActivity implements
 
     // Switch UI to the given fragment
     private void switchToFragment(Fragment newFrag) {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, newFrag).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, newFrag).commitAllowingStateLoss();
     }
 
     private void setLayout() {

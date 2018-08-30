@@ -29,7 +29,7 @@ public class Ad {
         return this;
     }
 
-    interface Listener {
+    public interface Listener {
         void OnAdClosed(int code);
         void OnAdFailToLoad(int code);
     }

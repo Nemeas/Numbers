@@ -1,4 +1,4 @@
-package no.nemeas.numbers;
+package no.nemeas.numbers.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,15 +13,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-
-import java.net.URL;
+import com.google.android.gms.common.SignInButton;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import no.nemeas.numbers.helpers.DownloadImageTask;
+import no.nemeas.numbers.R;
 
 public class StartScreenFragment extends Fragment {
     private int lvl = 1;
 
-    interface Listener {
+    public interface Listener {
         void onShowLeaderBoard();
         void onSignOut();
         void onSignIn();
@@ -34,7 +35,7 @@ public class StartScreenFragment extends Fragment {
     private Button mPlayButton;
     private ImageView mSplashImage;
     private CircleImageView mProfileImage;
-    private Button mSignInButton;
+    private SignInButton mSignInButton;
 
     public StartScreenFragment setListener(Listener listener) {
         this.mListener = listener;

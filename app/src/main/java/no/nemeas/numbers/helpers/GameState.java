@@ -1,6 +1,8 @@
-package no.nemeas.numbers;
+package no.nemeas.numbers.helpers;
 
 import android.util.Log;
+
+import no.nemeas.numbers.Settings;
 
 public class GameState {
     public StateEnum state = StateEnum.initial;

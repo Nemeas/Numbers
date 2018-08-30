@@ -1,4 +1,4 @@
-package no.nemeas.numbers;
+package no.nemeas.numbers.helpers;
 
 public enum StateEnum {
     initial,

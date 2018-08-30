@@ -1,6 +1,8 @@
-package no.nemeas.numbers;
+package no.nemeas.numbers.helpers;
 
 import java.util.Random;
+
+import no.nemeas.numbers.helpers.Position;
 
 public class PositionHelper {
     public static Position[] getPositions(int xMin, int xMax, int yMin, int yMax, int n, int size, int margin) {

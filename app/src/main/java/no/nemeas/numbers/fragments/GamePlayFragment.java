@@ -1,4 +1,4 @@
-package no.nemeas.numbers;
+package no.nemeas.numbers.fragments;
 
 import android.animation.ValueAnimator;
 import android.app.AlertDialog;
@@ -18,6 +18,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import no.nemeas.numbers.Ad;
+import no.nemeas.numbers.helpers.GameState;
+import no.nemeas.numbers.helpers.Position;
+import no.nemeas.numbers.helpers.PositionHelper;
+import no.nemeas.numbers.R;
+import no.nemeas.numbers.Settings;
+import no.nemeas.numbers.helpers.StateEnum;
+import no.nemeas.numbers.helpers.Timer;
+import no.nemeas.numbers.helpers.Utils;
 
 // the game should be divided into stages and lvls, where one lvl contains an infinity number of stages. - done
 // when starting a lvl the timer begins, and the timer is always, lets say 1 minute. - done
@@ -76,7 +86,7 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
             mListener.onGamePlayBackPressed();
     }
 
-    interface Listener {
+    public interface Listener {
         void onNewHighScore(int score);
         void onGamePlayBackPressed();
         void shake();

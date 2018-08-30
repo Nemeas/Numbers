@@ -1,4 +1,4 @@
-package no.nemeas.numbers;
+package no.nemeas.numbers.helpers;
 
 public class Setup {
     public int n;

@@ -1,4 +1,4 @@
-package no.nemeas.numbers;
+package no.nemeas.numbers.helpers;
 
 import android.os.CountDownTimer;
 
@@ -14,7 +14,7 @@ public class Timer {
 
     private Listener mListener;
 
-    interface Listener {
+    public interface Listener {
         void onTimerUpdate(long millisUntilFinished);
         void onTimerFinished();
     }

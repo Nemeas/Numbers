@@ -1,9 +1,11 @@
-package no.nemeas.numbers;
+package no.nemeas.numbers.helpers;
 
 import android.graphics.Color;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import no.nemeas.numbers.Settings;
 
 public class Utils {
     public static int getRandomBackgroundColor() {
