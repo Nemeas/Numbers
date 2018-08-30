@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -204,6 +207,12 @@ public class MainActivity extends FragmentActivity implements
     public void onGamePlayBackPressed() {
         switchToFragment(mStartScreenFragment);
         signInSilently();
+    }
+
+    @Override
+    public void shake() {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE));
     }
 
     @Override

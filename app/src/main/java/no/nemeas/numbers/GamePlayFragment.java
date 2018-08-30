@@ -79,6 +79,7 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
     interface Listener {
         void onNewHighScore(int score);
         void onGamePlayBackPressed();
+        void shake();
     }
 
     public GamePlayFragment setListener(Listener listener) {
@@ -286,6 +287,7 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
 
     private void setGameStateRoundFailed() {
         state.failRound();
+        mListener.shake();
         updateScore();
         showThumbsDown();
         setupNewRound();
