@@ -309,6 +309,8 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
 
         hideTimer();
 
+        hideScore();
+
         showCountDown();
 
         mHandler.postDelayed(new Runnable() {
@@ -317,6 +319,7 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
                 showBoard();
                 updateScore();
                 showTimer();
+                showScore();
                 timer.start();
             }
         }, Settings.DURATION_OF_COUNTDOWN_IN_MILLI_SECS);
@@ -325,9 +328,15 @@ public class GamePlayFragment extends Fragment implements Timer.Listener, Ad.Lis
     private void hideTimer() {
         mTextTimer.setVisibility(View.INVISIBLE);
     }
+    private void hideScore() {
+        mScore.setVisibility(View.INVISIBLE);
+    }
 
     private void showTimer() {
         mTextTimer.setVisibility(View.VISIBLE);
+    }
+    private void showScore() {
+        mScore.setVisibility(View.VISIBLE);
     }
 
     private void hideBoard() {
