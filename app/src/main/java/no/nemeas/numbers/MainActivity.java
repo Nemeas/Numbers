@@ -244,16 +244,7 @@ public class MainActivity extends FragmentActivity implements
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 onConnected(account);
             } catch (ApiException apiException) {
-                String message = apiException.getMessage();
-                if (message == null || message.isEmpty())
-                    message = "obs";
-
                 onDisconnected();
-
-                new AlertDialog.Builder(this)
-                        .setMessage(message)
-                        .setNeutralButton(android.R.string.ok, null)
-                        .show();
             }
         }
     }
