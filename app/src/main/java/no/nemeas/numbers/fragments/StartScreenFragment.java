@@ -19,8 +19,13 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import no.nemeas.numbers.helpers.DownloadImageTask;
 import no.nemeas.numbers.R;
 
-public class StartScreenFragment extends Fragment {
+public class StartScreenFragment extends Fragment implements DownloadImageTask.Listener {
     private int lvl = 1;
+
+    @Override
+    public void onProfileImageSetComplete() {
+        mProfileImage.setVisibility(View.VISIBLE);
+    }
 
     public interface Listener {
         void onShowLeaderBoard();
@@ -74,7 +79,6 @@ public class StartScreenFragment extends Fragment {
                 mListener.onSignIn();
             }
         });
-        animateImage(mLeaderBoardButton);
 
         mPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,20 +93,29 @@ public class StartScreenFragment extends Fragment {
     public void showLogin() {
         mSignInButton.setVisibility(View.VISIBLE);
         mProfileImage.setVisibility(View.INVISIBLE);
+        removeAnimation(mLeaderBoardButton);
         mLeaderBoardButton.setVisibility(View.INVISIBLE);
     }
 
     public void hideLogin() {
         mSignInButton.setVisibility(View.INVISIBLE);
-        mProfileImage.setVisibility(View.VISIBLE);
+        animateImage(mLeaderBoardButton);
         mLeaderBoardButton.setVisibility(View.VISIBLE);
     }
 
     public void setUserImage(String url) {
-        new DownloadImageTask(mProfileImage).execute(url);
+        new DownloadImageTask(mProfileImage).setListener(this).execute(url);
     }
 
-    private void animateImage(final ImageView image) {
+    private void removeAnimation(ImageView image) {
+        image.clearAnimation();
+    }
+
+    private void animateImage(ImageView image) {
+        image.startAnimation(getLeaderBoardAnimation());
+    }
+
+    private RotateAnimation getLeaderBoardAnimation() {
         RotateAnimation rotate = new RotateAnimation(
                 -15, 35,
                 Animation.RELATIVE_TO_SELF, 0.5f,
@@ -112,7 +125,7 @@ public class StartScreenFragment extends Fragment {
         rotate.setRepeatMode(RotateAnimation.REVERSE);
         rotate.setInterpolator(new AccelerateInterpolator());
         rotate.setRepeatCount(Animation.INFINITE);
-        image.startAnimation(rotate);
+        return rotate;
     }
 
     private void play() {
